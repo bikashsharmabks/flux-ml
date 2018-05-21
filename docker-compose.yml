@@ -1,0 +1,9 @@
+version: "3"
+
+services: 
+  twitter-stream:
+    build: ./twitter-stream
+    volumes: 
+      - ./twitter-stream:/app
+    ports:
+      - "80:80"
