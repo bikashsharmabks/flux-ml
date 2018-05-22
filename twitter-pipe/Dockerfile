@@ -1,20 +1,15 @@
-# Using official python runtime base image
-FROM python:3
+# Using gettyimages/spark spark image
+FROM gettyimages/spark
 
 #set application directory
 WORKDIR /app
 
 #Install requirements.txt
 ADD requirements.txt /app/requirements.txt
-RUN pip install pathlib
-RUN pip install tweepy
 RUN pip install -r requirements.txt
 
 #copy code from current folder to /app folder
 ADD . /app
 
-#Make expose port 80
-EXPOSE 80
-
 #run app.py on launch of docker
-CMD ["python", "app.py"]
+#CMD ["python", "app.py"]

@@ -1,1 +1,4 @@
+kafka
+psutil
+websockets
 Flask
