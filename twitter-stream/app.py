@@ -3,10 +3,6 @@ from flask import Flask
 from flask import jsonify
 import json
 import os
-from kafka import KafkaProducer
-from kafka.errors import KafkaError
-from kafka.client import KafkaClient
-
 
 #internal imports
 import twitter as tw
@@ -18,7 +14,7 @@ KAFKA_HOST = os.environ['KAFKA_HOST']
 app = Flask(__name__)
 
 #create instance of 
-twitter_Service = tw.Service('config.json')
+twitter_Service = tw.Service('config.json', KAFKA_HOST)
 
 # GET /
 @app.route("/twitter-config")
