@@ -20,6 +20,7 @@ class Service(object):
 		auth.set_access_token(self._twitter_config['access_token'], self._twitter_config['access_token_secret'])
 		self._api = tweepy.API(auth)
 		self._kafka_host = kafka_host
+		self._streams = []
 
 	@property
 	def config(self):
@@ -29,15 +30,32 @@ class Service(object):
 	def api(self):
 		return self._api
 
-	def start_listening(self, hashtag):
+	def start_streaming(self, hashtag):
+		"""Start Streaming for a hastag"""
+
 		stream = TwitterStreamListener(hashtag, self._kafka_host)
 		twitter_stream = tweepy.Stream(auth = self._api.auth, listener=stream)
 		twitter_stream.filter(track=[hashtag], async=True)
+		self._streams.append(twitter_stream)
+		log.debug("stream connected %s" % (hashtag))
+
+	def stop_streaming(self, hashtag):
+		for stream in self._streams:
+			if stream.body['track'] == hashtag.encode('utf8'):
+				stream.disconnect()
+				self._streams.remove(stream)
+				log.debug("stream disconnected %s" % (hashtag))
+
 
 class TwitterStreamListener(tweepy.StreamListener):
 	def __init__(self, hashtag, kafka_host):
 		pass
 		self._hashtag = hashtag
+
+		# encode objects via msgpack
+		#self.producer = KafkaProducer(bootstrap_servers=kafka_host, value_serializer=msgpack.dumps)
+		
+		# check if spark can consume 
 		self.producer = KafkaProducer(bootstrap_servers=kafka_host, value_serializer=lambda v: json.dumps(v).encode('utf-8'))
 		
 	def on_data(self, data):
