@@ -1,55 +1,35 @@
+#external imports
 from flask import Flask
+from flask import jsonify
 import json
-import tweepy
-import socket
-import sys
-import time
 import os
-
 from kafka import KafkaProducer
 from kafka.errors import KafkaError
 from kafka.client import KafkaClient
 
 
+#internal imports
+import twitter as tw
+
+#get kafka host and port config from env variable
 KAFKA_HOST = os.environ['KAFKA_HOST']
 
+#create instance of flask app
 app = Flask(__name__)
-stream = None
 
-@app.route("/")
-def send():
-	return KAFKA_HOST
+#create instance of 
+twitter_Service = tw.Service('config.json')
 
-def initialize():
-	with open('config.json') as config_data:
-		config = json.load(config_data)
+# GET /
+@app.route("/twitter-config")
+def get_twitter_config():
+	return jsonify(twitter_Service.config)
 
-	producer = KafkaProducer(bootstrap_servers=[KAFKA_HOST], value_serializer=lambda v: json.dumps(v))
-		
-	# auth = tweepy.OAuthHandler(config['consumer_key'], config['consumer_secret'])
-	# auth.set_access_token(config['access_token'], config['access_token_secret'])
-	# api = tweepy.API(auth)
-
-	# stream = TwitterStreamListener()
-	# twitter_stream = tweepy.Stream(auth = api.auth, listener=stream)
-	# twitter_stream.filter(track=['iphone'], async=True)
-
-# class TwitterStreamListener(tweepy.StreamListener):
-# 	def __init__(self):
-# 		self.producer = KafkaProducer(bootstrap_servers=KAFKA_HOST, value_serializer=lambda v: json.dumps(v))
-# 		self.tweets = []
-
-# 	def on_data(self, data):
-# 		text = json.loads(data)[u'text']
-# 		self.producer.send('iphone', text)
-# 		self.tweets.append(text)
-# 		self.producer.flush()
-# 		print(text)
-
-# 	def on_error(self, status_code):
-# 		if status_code == 420:
-# 			return False
+# GET /
+@app.route("/hashtags/<string:hash_tag>")
+def get_hashtag_tweets(hash_tag):
+	twitter_Service.start_listening(hash_tag)
+	return hash_tag
 
 if __name__ == '__main__':
-	initialize()
 	app.run(host='0.0.0.0', port=80)
