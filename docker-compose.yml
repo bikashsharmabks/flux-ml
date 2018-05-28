@@ -38,7 +38,8 @@ services:
 
   master:
     container_name: spark-master
-    image: gettyimages/spark
+    #image: gettyimages/spark
+    build: ./twitter-pipe
     command: bin/spark-class org.apache.spark.deploy.master.Master -h master
     hostname: master
     environment:
@@ -68,7 +69,8 @@ services:
   
   worker:
     container_name: spark-worker
-    image: gettyimages/spark
+    #image: gettyimages/spark
+    build: ./twitter-pipe
     command: bin/spark-class org.apache.spark.deploy.worker.Worker spark://master:7077
     hostname: worker
     environment:
