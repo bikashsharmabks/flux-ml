@@ -64,7 +64,7 @@ services:
     volumes:
       - ./twitter-pipe/conf/master:/conf
       - ./twitter-pipe/data:/tmp/data
-      - ./twitter-pipe/app:/app
+      - ./twitter-pipe:/app
     depends_on:
       - kafka
   
