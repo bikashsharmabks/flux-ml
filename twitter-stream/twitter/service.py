@@ -59,10 +59,14 @@ class TwitterStreamListener(tweepy.StreamListener):
 		self.producer = KafkaProducer(bootstrap_servers=kafka_host, value_serializer=lambda v: json.dumps(v).encode('utf-8'))
 		
 	def on_data(self, data):
-		text = json.loads(data)[u'text']
+		
+		data_json = json.loads(data)
+		data_json["hashtag"] = self._hashtag
+
+		text = data_json[u'text']
 		log.debug(text)
 		
-		self.producer.send(self._hashtag, data)
+		self.producer.send("hashtag", data_json)
 		self.producer.flush()
 
 	def on_error(self, status_code):

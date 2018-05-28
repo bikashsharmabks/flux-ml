@@ -6,9 +6,9 @@ WORKDIR /app
 
 #Install requirements.txt
 ADD requirements.txt /app/requirements.txt
-RUN pip install pathlib
-RUN pip install tweepy
-RUN pip install -r requirements.txt
+RUN pip install pathlib && \
+	pip install tweepy && \
+	pip install -r requirements.txt
 
 #copy code from current folder to /app folder
 ADD . /app
