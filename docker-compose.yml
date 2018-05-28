@@ -46,6 +46,7 @@ services:
       MASTER: spark://master:7077
       SPARK_CONF_DIR: /conf
       SPARK_PUBLIC_DNS: localhost
+      KAFKA_HOST: kafka:9092
     expose:
       - 7001
       - 7002
@@ -70,7 +71,7 @@ services:
   worker:
     container_name: spark-worker
     #image: gettyimages/spark
-    build: ./twitter-pipe
+    build: ./twitter-pipe 
     command: bin/spark-class org.apache.spark.deploy.worker.Worker spark://master:7077
     hostname: worker
     environment:
