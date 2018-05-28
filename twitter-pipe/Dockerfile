@@ -2,7 +2,7 @@
 FROM gettyimages/spark
 
 # Scala related variables.
-ARG SCALA_VERSION=2.12.6
+ARG SCALA_VERSION=2.11.8
 ARG SCALA_BINARY_ARCHIVE_NAME=scala-${SCALA_VERSION}
 ARG SCALA_BINARY_DOWNLOAD_URL=https://downloads.lightbend.com/scala/${SCALA_VERSION}/${SCALA_BINARY_ARCHIVE_NAME}.tgz
 
