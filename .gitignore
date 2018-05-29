@@ -101,5 +101,10 @@ venv.bak/
 # mkdocs documentation
 /site
 
+#redis db
+twitter-api/data/redis
+#parquet file
+twitter-pipe/store-job
+
 # mypy
 .mypy_cache/

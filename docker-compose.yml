@@ -21,31 +21,15 @@ services:
       - zookeeper
     command: bash -c 'bash /tmp/start_kafka.sh'
 
-  twitter-stream:
-    container_name: twitter-stream
-    hostname: twitter-stream
-    build: ./twitter-stream
-    volumes: 
-      - ./twitter-stream:/app
-    ports:
-      - "80:80"
-      - "5557:5557"
-    environment:
-      KAFKA_HOST: kafka:9092
-    restart: on-failure #hack restart until kafka is online
-    depends_on:
-      - kafka
-
   master:
     container_name: spark-master
-    #image: gettyimages/spark
     build: ./twitter-pipe
-    command: bin/spark-class org.apache.spark.deploy.master.Master -h master
-    hostname: master
+    command: bin/spark-class org.apache.spark.deploy.master.Master -h spark-master
+    hostname: spark-master
     environment:
-      MASTER: spark://master:7077
+      MASTER: spark://spark-master:7077
       SPARK_CONF_DIR: /conf
-      SPARK_PUBLIC_DNS: localhost
+      #SPARK_PUBLIC_DNS: localhost
       KAFKA_HOST: kafka:9092
     expose:
       - 7001
@@ -64,23 +48,23 @@ services:
     volumes:
       - ./twitter-pipe/conf/master:/conf
       - ./twitter-pipe/data:/tmp/data
-      - ./twitter-pipe/app:/app
+      - ./twitter-pipe:/app
+      - ./twitter-pipe/store-job:/store-job
     depends_on:
       - kafka
   
   worker:
     container_name: spark-worker
-    #image: gettyimages/spark
     build: ./twitter-pipe 
-    command: bin/spark-class org.apache.spark.deploy.worker.Worker spark://master:7077
-    hostname: worker
+    command: bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077
+    hostname: spark-worker
     environment:
       SPARK_CONF_DIR: /conf
       SPARK_WORKER_CORES: 2
       SPARK_WORKER_MEMORY: 1g
       SPARK_WORKER_PORT: 8881
       SPARK_WORKER_WEBUI_PORT: 8081
-      SPARK_PUBLIC_DNS: localhost
+      #SPARK_PUBLIC_DNS: localhost
     links:
       - master
     expose:
@@ -98,3 +82,59 @@ services:
       - ./twitter-pipe/data:/tmp/data
     depends_on:
       - master
+
+  redis:
+    container_name: redis
+    image: redis
+    hostname: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./twitter-rest/data/redis:/data
+
+  twitter-stream:
+    container_name: twitter-stream
+    hostname: twitter-stream
+    build: ./twitter-stream
+    volumes: 
+      - ./twitter-stream:/app
+    ports:
+      - "5000:5000"
+    environment:
+      KAFKA_HOST: kafka:9092
+    restart: on-failure #hack restart until kafka is online
+    depends_on:
+      - kafka
+
+  twitter-api:
+    container_name: twitter-api
+    image: node:8
+    hostname: twitter-api
+    ports:
+      - "5001:5001"
+    volumes:
+      - ./twitter-api:/app
+    depends_on:
+      - redis
+      - twitter-stream
+
+  twitter-ui:
+    container_name: twitter-ui
+    image: node:8
+    hostname: twitter-ui
+    ports: 
+      - "5002:5002"
+    volumes:
+      - ./twitter-ui:/app
+
+  twitter-proxy:
+    container_name: twitter-proxy
+    image: nginx:alpine
+    hostname: twitter-proxy
+    ports: 
+      - "80:80"
+    volumes:
+       - ./twitter-proxy/nginx.conf:/etc/nginx/conf.d/default.conf
+       - ./twitter-ui/public:/app/public
+    depends_on:
+      - twitter-api
