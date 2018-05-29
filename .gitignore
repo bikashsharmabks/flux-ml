@@ -101,5 +101,10 @@ venv.bak/
 # mkdocs documentation
 /site
 
+#redis db
+data/redis
+#parquet file
+data/parquet
+
 # mypy
 .mypy_cache/

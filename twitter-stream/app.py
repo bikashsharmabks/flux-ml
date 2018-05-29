@@ -34,4 +34,4 @@ def stop_hashtag_stream(hash_tag):
 	return hash_tag
 
 if __name__ == '__main__':
-	app.run(host='0.0.0.0', port=80)
+	app.run(host='0.0.0.0', port=5000)
