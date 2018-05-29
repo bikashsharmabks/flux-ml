@@ -102,9 +102,9 @@ venv.bak/
 /site
 
 #redis db
-twitter-api/data/redis
+data/redis
 #parquet file
-twitter-pipe/store-job
+data/parquet
 
 # mypy
 .mypy_cache/

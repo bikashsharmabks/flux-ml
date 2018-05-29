@@ -197,7 +197,7 @@ def extract_each_RDD(rdd):
         twitterEntityRDD = twitterEntityDF.rdd.map(format_tweet);
         twitterDFToWrite = sqlContext.createDataFrame(twitterEntityRDD);
         print(twitterDFToWrite.show()); 
-        twitterDFToWrite.write.mode('append').parquet("twitter.parquet")
+        twitterDFToWrite.write.mode('append').parquet("/parquet/twitter.parquet")
         print('after sql execution. and data written to parquet file.');
 
 
