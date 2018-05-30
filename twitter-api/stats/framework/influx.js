@@ -1,5 +1,5 @@
-var Influx = require('influx'),
-	debug = require('debug')('influx');
+var Influx = require('influx');
+
 /**
  * Influx Database module.
  * @module framework/influx
@@ -11,18 +11,15 @@ var influxDb = module.exports = {
 var schema = [{
 	measurement: 'tweets',
 	fields: {
-		val: Influx.FieldType.INTEGER
+		locationCount: Influx.FieldType.INTEGER, // 1
+		verifiedCount: Influx.FieldType.INTEGER, // 1
+		linkCount: Influx.FieldType.INTEGER, // calculate
+		retweetCount: Influx.FieldType.INTEGER, // 1
+		imageCount: Influx.FieldType.INTEGER, // calculate how many coming.
+		HashtagCount: Influx.FieldType.INTEGER, // calculate how many coming.
 	},
 	tags: [
-		'clientId', 'payerId', 'channelId', 'transactionTypeId'
-	]
-}, {
-	measurement: 'inprocess',
-	fields: {
-		val: Influx.FieldType.INTEGER
-	},
-	tags: [
-		'clientId', 'payerId', 'channelId', 'transactionTypeId'
+		'hashtag', 'location', 'verified', 'link', 'retweet', 'image', 'hashtag', 'mentions',
 	]
 }];
 
@@ -39,7 +36,7 @@ function init(config) {
 
 	var influx = new Influx.InfluxDB({
 		host: host,
-		port:port,
+		port: port,
 		database: dbName
 	});
 
@@ -66,9 +63,10 @@ function setUpDatabase(influx, host, dbName) {
 			}
 		})
 		.then(() => {
-			debug('Influx database already setup.');
+			console.log('Influx database already setup.');
 		})
 		.catch(err => {
+			console.log(err)
 			throw new Error('Error creating Influx database!');
 		});
 }

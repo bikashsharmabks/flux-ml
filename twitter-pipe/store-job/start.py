@@ -9,7 +9,7 @@ from pyspark.sql.types import StringType, StructField, StructType, BooleanType, 
 from pyspark.sql import Row
 from pyspark.sql.functions import explode
 
-
+# lang , activity type , source , url desc.
 from kafka import KafkaProducer
 from kafka.errors import KafkaError
 from kafka.client import KafkaClient
@@ -24,8 +24,13 @@ schema = StructType([
         StructField("id", StringType(), True),
         StructField("text", StringType(), True),
         StructField("hashtag", StringType(), True),
+        StructField("source", StringType(), True),
         StructField("timestamp_ms", StringType(), True),
         StructField("coordinates", StringType(), True),
+        StructField("lang", StringType(), True),
+        StructField("is_quote_status", BooleanType(), True),
+        StructField("favorited", BooleanType(), True),
+        StructField("retweeted", BooleanType(), True),
         StructField("user",StructType([
                     StructField("name", StringType(), True),
                     StructField("screen_name", StringType(), True),
@@ -53,8 +58,6 @@ schema = StructType([
                 ])
             , True)
     ])
-
-
 
 
 #get MASTER_SPARK host , KAFKA_HOST and port config from env variable
@@ -95,7 +98,15 @@ def format_tweet(r):
     for tw_key,tw_value in temp.items():
         if( tw_value == None):
             temp[tw_key] = "";
-        
+    
+    if(temp.get("is_quote") == True):
+        temp["activityType"] = "quote";
+    elif(temp.get("is_favorite") == True):
+        temp["activityType"] = "favorite";
+    elif(temp.get("is_retweet") == True):
+        temp["activityType"] = "retweet";
+    else:
+        temp["activityType"] = "tweet";    
     
     user_mentions = temp.get("user_mentions"); 
     hashtags = temp.get("hashtags"); 
@@ -201,7 +212,20 @@ def extract_each_RDD(rdd):
         print("Rdd not empty."); 
         tweets_df = spark.createDataFrame(rdd,schema);
         tweets_df.createOrReplaceTempView("tweets");
-        twitterEntityDF = spark.sql("SELECT id,hashtag,text,timestamp_ms,coordinates,user.*,entities.user_mentions,entities.hashtags,entities.urls from tweets");
+        twitterEntityDF = spark.sql("SELECT id,hashtag,text,timestamp_ms,coordinates,source,lang,\
+                                    is_quote_status as is_quote,favorited as is_favorite,retweeted as is_retweet,\
+                                    user.name as user_name,user.screen_name as user_screen_name,\
+                                    user.location as user_location,\
+                                    user.profile_background_image_url as user_profile_background_image_url,\
+                                    user.profile_image_url as user_profile_image_url,\
+                                    user.verified as user_verified,\
+                                    user.followers_count as user_followers_count,\
+                                    user.friends_count as user_friends_count,\
+                                    user.statuses_count as user_statuses_count,\
+                                    entities.user_mentions,\
+                                    entities.hashtags,\
+                                    entities.urls \
+                                    from tweets");
         twitterEntityRDD = twitterEntityDF.rdd.map(format_tweet);
         twitterDFToWrite = sqlContext.createDataFrame(twitterEntityRDD);
         print(twitterDFToWrite.show()); 
