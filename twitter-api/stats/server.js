@@ -1,7 +1,7 @@
 var config = {
 	"influx": {
-		"host":"influxdb",
-		"port":"8086"
+		"host":"localhost",
+		"port":"8086",
 		"dbName":"tweet_timeseries"
 	}
 }

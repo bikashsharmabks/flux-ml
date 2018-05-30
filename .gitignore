@@ -110,3 +110,6 @@ data/influxdb
 
 # mypy
 .mypy_cache/
+
+# twitter-api stats node_modules 
+twitter-api/stats/node_modules
