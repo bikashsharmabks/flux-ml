@@ -27,7 +27,7 @@ object SentimentAnalyzer {
     val ssc = StreamingContext.getActiveOrCreate(createSparkStreamingContext)
 
     val kafkaParams = Map[String, Object](
-      "bootstrap.servers" -> "localhost:9092",
+      "bootstrap.servers" -> kafkaHost,
       "group.id" -> "sentiment",
       "auto.offset.reset" -> "latest",
       "key.deserializer" -> classOf[StringDeserializer],
@@ -65,8 +65,8 @@ object SentimentAnalyzer {
       .set("spark.serializer", classOf[KryoSerializer].getCanonicalName)
       // Reduce the RDD memory usage of Spark and improving GC behavior.
       .set("spark.streaming.unpersist", "true")
-      .setMaster("local")
-      //.setMaster(sparkMaster)
+      //.setMaster("local")
+      .setMaster(sparkMaster)
     val ssc = new StreamingContext(conf, Durations.seconds(15))
     ssc
   }
