@@ -93,6 +93,15 @@ services:
     volumes:
       - ./data/redis:/data
 
+  influxdb:
+    container_name: influxdb
+    image: influxdb:alpine
+    hostname: influxdb
+    volumes:
+      - ./data/influxdb:/var/lib/influxdb
+    ports: 
+      - "8086:8086"
+
   twitter-stream:
     container_name: twitter-stream
     hostname: twitter-stream

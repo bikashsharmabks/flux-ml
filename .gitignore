@@ -105,6 +105,8 @@ venv.bak/
 data/redis
 #parquet file
 data/parquet
+#influxdb file
+data/influxdb
 
 # mypy
 .mypy_cache/
