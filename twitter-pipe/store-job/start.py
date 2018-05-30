@@ -9,6 +9,11 @@ from pyspark.sql.types import StringType, StructField, StructType, BooleanType, 
 from pyspark.sql import Row
 from pyspark.sql.functions import explode
 
+
+from kafka import KafkaProducer
+from kafka.errors import KafkaError
+from kafka.client import KafkaClient
+
 import json
 import os
 
@@ -68,10 +73,12 @@ sc = SparkContext(conf = conf)
 # intializing spark,sqlContext,StreamingContext obj.
 spark = SparkSession(sc);
 sqlContext = SQLContext(sc);
-ssc = StreamingContext(sc, 2)
+ssc = StreamingContext(sc, 5)
 
 # kafka-spark stream.
 kvs = KafkaUtils.createDirectStream(ssc,["hashtag"], {"metadata.broker.list": KAFKA_HOST})
+
+producer = KafkaProducer(bootstrap_servers=KAFKA_HOST, value_serializer=lambda v: json.dumps(v).encode('utf-8'))
 
 # text coming as tuple (None,Tweet_data) 
 def format_twitter_data(text):
@@ -182,7 +189,6 @@ def format_tweet(r):
 
     # Save or output the row to a pyspark rdd
     output = Row(**temp) 
-    print(output)
     return output;
 
 def extract_each_RDD(rdd):
@@ -197,8 +203,13 @@ def extract_each_RDD(rdd):
         twitterEntityRDD = twitterEntityDF.rdd.map(format_tweet);
         twitterDFToWrite = sqlContext.createDataFrame(twitterEntityRDD);
         print(twitterDFToWrite.show()); 
-        twitterDFToWrite.write.mode('append').parquet("/parquet/twitter.parquet")
+        twitterDFToWrite.write.mode('append').parquet("twitter.parquet")
         print('after sql execution. and data written to parquet file.');
+
+        for tweet in twitterEntityRDD.collect():
+            producer.send("activity",tweet.asDict());
+
+        producer.flush()   
 
 
 (kvs.map(format_twitter_data).foreachRDD(extract_each_RDD));

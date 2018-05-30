@@ -27,11 +27,11 @@ RUN apt-get -y update && \
     ln -s ${SCALA_BINARY_ARCHIVE_NAME} scala
 
 #set application directory
-#WORKDIR /app
+WORKDIR /app
 
 #Install requirements.txt
-#ADD requirements.txt /app/requirements.txt
-#RUN pip install -r requirements.txt
+ADD requirements.txt /app/requirements.txt
+RUN pip install -r requirements.txt
 
 #copy code from current folder to /app folder
 #ADD . /app
