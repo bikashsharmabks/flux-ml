@@ -68,7 +68,9 @@ KAFKA_HOST = os.environ['KAFKA_HOST']
 conf = SparkConf()
 conf.setMaster(MASTER_SPARK)
 conf.setAppName("store-job")
-conf.set("spark.executor.memory", "1g")
+conf.set("spark.executor.memory", "512m")
+conf.set("spark.cores.max","1")
+conf.set("spark.scheduler.mode", "FAIR")
 
 # intializing spark context.
 sc = SparkContext(conf = conf)
