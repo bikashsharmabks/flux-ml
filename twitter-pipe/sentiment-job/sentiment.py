@@ -10,8 +10,8 @@ from pyspark.sql.types import StringType, StructField, StructType, BooleanType, 
 from pyspark.sql import Row
 from pyspark.sql.functions import explode
 
-#import re
-#from textblob import TextBlob
+import re
+from textblob import TextBlob
 
 import json
 import os
@@ -51,12 +51,25 @@ print(kafkaTwitterStream)
 
 # text coming as tuple (None,Tweet_data) 
 def format_twitter_data(text):
-	print("@@@@@@@@@@@@@@")
-	print(text)
 	return json.loads(text[1]);
 
+
+def get_tweet_sentiment(r):
+    #Convert to python dict
+    temp = r.asDict();
+    print(temp)
+
+    for tw_key,tw_value in temp.items():
+        if( tw_value == None):
+            temp[tw_key] = "";
+
+    text = temp.get("text");
+    print("@@@@@@@@@")
+    print(text)
+    return text
+
 def extract_each_RDD(rdd):
-   	#print(rdd.count())
+   	#print(rdd.collect())
     if(rdd.isEmpty()): 
         print("Rdd empty.");
     else:
@@ -64,9 +77,8 @@ def extract_each_RDD(rdd):
         tweets_df = spark.createDataFrame(rdd,schema);
         tweets_df.createOrReplaceTempView("tweets");
         twitterEntityDF = spark.sql("SELECT id,hashtag,text,timestamp_ms from tweets");
-        print(twitterEntityDF)
-        #twitterEntityRDD = twitterEntityDF.rdd.map(format_tweet);
-         
+        twitterEntityRDD = twitterEntityDF.rdd.map(get_tweet_sentiment);
+        print(twitterEntityRDD.collect())
 
 (kafkaTwitterStream.map(format_twitter_data).foreachRDD(extract_each_RDD));
 
