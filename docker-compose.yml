@@ -25,7 +25,7 @@ services:
     container_name: spark-master
     build: ./twitter-pipe
     command: bin/spark-class org.apache.spark.deploy.master.Master -h spark-master
-    #&& spark-submit --packages org.apache.spark:spark-streaming-kafka-0-8_2.11:2.1.1 /app/store-job/start.py
+    #spark-submit --packages org.apache.spark:spark-streaming-kafka-0-8_2.11:2.1.1 /app/store-job/start.py
     hostname: spark-master
     environment:
       MASTER: spark://spark-master:7077
@@ -91,7 +91,16 @@ services:
     ports:
       - "6379:6379"
     volumes:
-      - ./twitter-rest/data/redis:/data
+      - ./data/redis:/data
+
+  influxdb:
+    container_name: influxdb
+    image: influxdb:alpine
+    hostname: influxdb
+    volumes:
+      - ./data/influxdb:/var/lib/influxdb
+    ports: 
+      - "8086:8086"
 
   twitter-stream:
     container_name: twitter-stream
