@@ -68,7 +68,7 @@ KAFKA_HOST = os.environ['KAFKA_HOST']
 conf = SparkConf()
 conf.setMaster(MASTER_SPARK)
 conf.setAppName("store-job")
-conf.set("spark.executor.memory", "512m")
+conf.set("spark.executor.memory", "1g")
 conf.set("spark.cores.max","1")
 conf.set("spark.scheduler.mode", "FAIR")
 
@@ -100,13 +100,13 @@ def format_tweet(r):
             temp[tw_key] = "";
     
     if(temp.get("is_quote") == True):
-        temp["activityType"] = "quote";
+        temp["activity_type"] = "quote";
     elif(temp.get("is_favorite") == True):
-        temp["activityType"] = "favorite";
+        temp["activity_type"] = "favorite";
     elif(temp.get("is_retweet") == True):
-        temp["activityType"] = "retweet";
+        temp["activity_type"] = "retweet";
     else:
-        temp["activityType"] = "tweet";    
+        temp["activity_type"] = "tweet";    
     
     user_mentions = temp.get("user_mentions"); 
     hashtags = temp.get("hashtags"); 
@@ -245,4 +245,6 @@ ssc.start()
 ssc.awaitTermination()
 
 sc.stop();
+
+#spark-submit --packages org.apache.spark:spark-streaming-kafka-0-8_2.11:2.1.1 start.py
 
