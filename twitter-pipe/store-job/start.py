@@ -63,14 +63,14 @@ schema = StructType([
 #get MASTER_SPARK host , KAFKA_HOST and port config from env variable
 MASTER_SPARK = os.environ['MASTER']
 KAFKA_HOST = os.environ['KAFKA_HOST']
+ZOOKEEPER_HOST = os.environ['ZOOKEEPER_HOST']
 
 # setting up conf obj for SparkContext
 conf = SparkConf()
 conf.setMaster(MASTER_SPARK)
 conf.setAppName("store-job")
 conf.set("spark.executor.memory", "1g")
-conf.set("spark.cores.max","1")
-conf.set("spark.scheduler.mode", "FAIR")
+#conf.set("spark.cores.max","1")
 
 # intializing spark context.
 sc = SparkContext(conf = conf)
@@ -80,14 +80,9 @@ spark = SparkSession(sc);
 sqlContext = SQLContext(sc);
 ssc = StreamingContext(sc, 5)
 
-# kafka-spark stream.
-kvs = KafkaUtils.createDirectStream(ssc,["hashtag"], {"metadata.broker.list": KAFKA_HOST})
+kvs = KafkaUtils.createStream(ssc, ZOOKEEPER_HOST, "store-job-group", {"hashtag": 1})
 
 producer = KafkaProducer(bootstrap_servers=KAFKA_HOST, value_serializer=lambda v: json.dumps(v).encode('utf-8'))
-
-# text coming as tuple (None,Tweet_data) 
-def format_twitter_data(text):
-	return json.loads(text[1]); 
 
 def format_tweet(r):
     #Convert to python dict
@@ -238,7 +233,8 @@ def extract_each_RDD(rdd):
         producer.flush()   
 
 
-(kvs.map(format_twitter_data).foreachRDD(extract_each_RDD));
+
+(kvs.map(lambda v: json.loads(v[1])).foreachRDD(extract_each_RDD));
 
 
 ssc.start()
@@ -246,5 +242,5 @@ ssc.awaitTermination()
 
 sc.stop();
 
-#spark-submit --packages org.apache.spark:spark-streaming-kafka-0-8_2.11:2.1.1 start.py
+#spark-submit --packages org.apache.spark:spark-streaming-kafka-0-8_2.11:2.3.0  /app/store-job/start.py
 

@@ -146,4 +146,4 @@ ssc.awaitTermination()
 
 sc.stop();
 
-#spark-submit --packages org.apache.spark:spark-streaming-kafka-0-8_2.11:2.1.1 sentiment.py
+#spark-submit --packages org.apache.spark:spark-streaming-kafka-0-8_2.11:2.3.0 /app/sentiment-job/sentiment.py
