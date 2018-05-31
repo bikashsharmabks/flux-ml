@@ -17,18 +17,18 @@ app = Flask(__name__)
 twitter_Service = tw.Service('config.json', KAFKA_HOST)
 
 # GET /
-@app.route("/api/twitter-config")
-def get_twitter_config():
-	return jsonify(twitter_Service.config)
+# @app.route("/api/job/twitter-config")
+# def get_twitter_config():
+# 	return jsonify(twitter_Service.config)
 
 # GET /
-@app.route("/api/hashtags/<string:hash_tag>/start")
+@app.route("/api/schedule-hashtags/<string:hash_tag>/start")
 def start_hashtag_stream(hash_tag):
 	twitter_Service.start_streaming(hash_tag)
 	return hash_tag
 
 # GET /
-@app.route("/api/hashtags/<string:hash_tag>/stop")
+@app.route("/api/schedule-hashtags/<string:hash_tag>/stop")
 def stop_hashtag_stream(hash_tag):
 	twitter_Service.stop_streaming(hash_tag)
 	return hash_tag
