@@ -25,14 +25,15 @@ services:
     container_name: spark-master
     build: ./twitter-pipe
     command: bin/spark-class org.apache.spark.deploy.master.Master -h spark-master
-    #spark-submit --num-executors 1 --executor-cores 1 --packages org.apache.spark:spark-streaming-kafka-0-8_2.11:2.1.1 /app/store-job/start.py
-    #spark-submit --packages org.apache.spark:spark-streaming-kafka-0-10_2.11:2.1.1 --class com.p10labs.sentiment.SentimentAnalyzer /app/sentiment-job/target/scala-2.11/sentimentanalyser_2.11-0.1.jar
+    #spark-submit --packages org.apache.spark:spark-streaming-kafka-0-8_2.11:2.3.0  /app/store-job/start.py
+    #spark-submit --packages org.apache.spark:spark-streaming-kafka-0-8_2.11:2.3.0 /app/sentiment-job/sentiment.py
     hostname: spark-master
     environment:
       MASTER: spark://spark-master:7077
       SPARK_CONF_DIR: /conf
       #SPARK_PUBLIC_DNS: localhost
       KAFKA_HOST: kafka:9092
+      ZOOKEEPER_HOST: zookeeper:2181
     expose:
       - 7001
       - 7002
