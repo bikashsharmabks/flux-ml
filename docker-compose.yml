@@ -25,7 +25,8 @@ services:
     container_name: spark-master
     build: ./twitter-pipe
     command: bin/spark-class org.apache.spark.deploy.master.Master -h spark-master
-    #spark-submit --packages org.apache.spark:spark-streaming-kafka-0-8_2.11:2.1.1 /app/store-job/start.py
+    #spark-submit --num-executors 1 --executor-cores 1 --packages org.apache.spark:spark-streaming-kafka-0-8_2.11:2.1.1 /app/store-job/start.py
+    #spark-submit --packages org.apache.spark:spark-streaming-kafka-0-10_2.11:2.1.1 --class com.p10labs.sentiment.SentimentAnalyzer /app/sentiment-job/target/scala-2.11/sentimentanalyser_2.11-0.1.jar
     hostname: spark-master
     environment:
       MASTER: spark://spark-master:7077
@@ -62,7 +63,7 @@ services:
     environment:
       SPARK_CONF_DIR: /conf
       SPARK_WORKER_CORES: 2
-      SPARK_WORKER_MEMORY: 1g
+      SPARK_WORKER_MEMORY: 4g
       SPARK_WORKER_PORT: 8881
       SPARK_WORKER_WEBUI_PORT: 8081
       #SPARK_PUBLIC_DNS: localhost
