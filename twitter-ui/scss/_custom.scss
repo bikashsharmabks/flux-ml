@@ -1,0 +1,20 @@
+// Here you can add other styles
+.sidebar {
+  .sidebar-nav, ul.nav {
+    width: $sidebar-width - 16px;
+  }
+}
+
+.avatar {
+	.img-avatar {
+		height: 48px;
+		width: 48px;
+	}
+}
+
+
+.hashtags {
+	margin-right:10px;
+	margin-bottom:10px;
+	font-size: 1em !important;
+}
