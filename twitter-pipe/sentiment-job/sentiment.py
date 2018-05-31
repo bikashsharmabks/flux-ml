@@ -53,6 +53,8 @@ ssc = StreamingContext(sc, 2)
 # kafka-spark stream.
 kafkaTwitterStream = KafkaUtils.createDirectStream(ssc,["activity"], {"metadata.broker.list": KAFKA_HOST})
 
+#, "group.id" :"sentiment-job", "auto.offset.reset" : "earliest"
+
 producer = KafkaProducer(bootstrap_servers=KAFKA_HOST, value_serializer=lambda v: json.dumps(v).encode('utf-8'))
 
 # text coming as tuple (None,Tweet_data) 
@@ -62,7 +64,7 @@ def format_twitter_data(text):
 def get_tweet_sentiment(r):
     #Convert to python dict
     temp = r.asDict();
-    tweets_with_sentiment = {}
+    #tweets_with_sentiment = {}
     for tw_key,tw_value in temp.items():
         if( tw_value == None):
             temp[tw_key] = "";
@@ -72,20 +74,22 @@ def get_tweet_sentiment(r):
     temp["text"]  = text;
     lang = temp.get("lang");
     activity_type = temp.get("activity_type");
-
-    if((activity_type == "tweet" or activity_type == "quote") and lang == "en"):
-        analysis = TextBlob(text)
-        temp["polarity"] = analysis.sentiment.polarity;
-        if temp["polarity"] > 0:
-            temp["sentiment"] = 'positive'
-        elif temp["polarity"] == 0:
-            temp["sentiment"] = 'neutral'
-        else:
-            temp["sentiment"] ='negative'
-
-        tweets_with_sentiment.update(temp)
     
-    output = Row(**tweets_with_sentiment);
+    analysis = TextBlob(text)
+    temp["polarity"] = analysis.sentiment.polarity;
+    if temp["polarity"] > 0:
+        temp["sentiment"] = 'positive'
+    elif temp["polarity"] == 0:
+        temp["sentiment"] = 'neutral'
+    else:
+        temp["sentiment"] ='negative'
+
+    # if(activity_type == "tweet" or activity_type == "quote"):
+        
+
+        #tweets_with_sentiment.update(temp)
+    
+    output = Row(**temp);
     return output
     
 
@@ -101,7 +105,15 @@ def clean_tweet(tweet):
     using simple regex statements.
     '''
     return ' '.join(re.sub("(@[A-Za-z0-9]+)|([^0-9A-Za-z \t])|(\w+:\/\/\S+)", " ", tweet).split())
- 
+
+def lang_filter(r,r2):
+    temp = r.asDict();
+    if(temp.get('lang') == 'en'):
+        return True;
+    else:
+        return False;    
+
+
 
 def extract_each_RDD(rdd):
 
@@ -112,11 +124,12 @@ def extract_each_RDD(rdd):
         print("Rdd not empty."); 
         tweets_df = spark.createDataFrame(rdd,schema);
         tweets_df.createOrReplaceTempView("tweets");
-        twitterEntityDF = spark.sql("SELECT id,user_name, user_screen_name, hashtag,text,timestamp_ms,lang,activity_type from tweets");
+        twitterEntityDF = spark.sql("SELECT id,user_name, user_screen_name, hashtag,text,timestamp_ms,lang,activity_type from tweets where lang='en' and (activity_type == 'tweet' or activity_type == 'quote') ");
+        #print(twitterEntityDF.rdd.collect())
         twitterEntityRDD = twitterEntityDF.rdd.map(get_tweet_sentiment);
         #print(twitterEntityRDD.collect());
         #twitterEntityRDD = get_tweet_sentiment(r);
-        if twitterEntityRDD:
+        if (not twitterEntityRDD.isEmpty()):
             twitterDFToWrite = sqlContext.createDataFrame(twitterEntityRDD);
             print(twitterDFToWrite.show()); 
             twitterDFToWrite.write.mode('append').parquet("sentiment.parquet")
