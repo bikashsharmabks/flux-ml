@@ -83,6 +83,7 @@ services:
     volumes:
       - ./twitter-pipe/conf/worker:/conf
       - ./twitter-pipe/data:/tmp/data
+      - ./twitter-pipe:/app
     depends_on:
       - master
 
