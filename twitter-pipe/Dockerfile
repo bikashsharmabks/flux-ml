@@ -26,12 +26,9 @@ FROM gettyimages/spark
 # 	cd /usr/ && \
 #     ln -s ${SCALA_BINARY_ARCHIVE_NAME} scala
 
-#set application directory
-WORKDIR /app
+RUN pip install kafka && \
+	pip install textblob
 
-#Install requirements.txt
-ADD requirements.txt /app/requirements.txt
-RUN pip install -r requirements.txt && \
-	python -m textblob.download_corpora
+RUN	python -m textblob.download_corpora
 
 
