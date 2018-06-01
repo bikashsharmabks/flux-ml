@@ -25,13 +25,15 @@ services:
     container_name: spark-master
     build: ./twitter-pipe
     command: bin/spark-class org.apache.spark.deploy.master.Master -h spark-master
-    #spark-submit --packages org.apache.spark:spark-streaming-kafka-0-8_2.11:2.1.1 /app/store-job/start.py
+    #spark-submit --packages org.apache.spark:spark-streaming-kafka-0-8_2.11:2.3.0  /app/store-job/start.py
+    #spark-submit --packages org.apache.spark:spark-streaming-kafka-0-8_2.11:2.3.0 /app/sentiment-job/sentiment.py
     hostname: spark-master
     environment:
       MASTER: spark://spark-master:7077
       SPARK_CONF_DIR: /conf
       #SPARK_PUBLIC_DNS: localhost
       KAFKA_HOST: kafka:9092
+      ZOOKEEPER_HOST: zookeeper:2181
     expose:
       - 7001
       - 7002
@@ -62,7 +64,7 @@ services:
     environment:
       SPARK_CONF_DIR: /conf
       SPARK_WORKER_CORES: 2
-      SPARK_WORKER_MEMORY: 1g
+      SPARK_WORKER_MEMORY: 4g
       SPARK_WORKER_PORT: 8881
       SPARK_WORKER_WEBUI_PORT: 8081
       #SPARK_PUBLIC_DNS: localhost
@@ -81,17 +83,9 @@ services:
     volumes:
       - ./twitter-pipe/conf/worker:/conf
       - ./twitter-pipe/data:/tmp/data
+      
     depends_on:
       - master
-
-  redis:
-    container_name: redis
-    image: redis
-    hostname: redis
-    ports:
-      - "6379:6379"
-    volumes:
-      - ./data/redis:/data
 
   influxdb:
     container_name: influxdb
@@ -124,8 +118,8 @@ services:
       - "5001:5001"
     volumes:
       - ./twitter-api:/app
+      - ./data/loki:/data
     depends_on:
-      - redis
       - twitter-stream
 
   twitter-ui:
@@ -145,6 +139,6 @@ services:
       - "80:80"
     volumes:
        - ./twitter-proxy/nginx.conf:/etc/nginx/conf.d/default.conf
-       - ./twitter-ui/public:/app/public
+       - ./twitter-ui/build:/app/www
     depends_on:
       - twitter-api

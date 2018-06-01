@@ -10,63 +10,136 @@ from pyspark.sql.types import StringType, StructField, StructType, BooleanType, 
 from pyspark.sql import Row
 from pyspark.sql.functions import explode
 
-#import re
-#from textblob import TextBlob
+from kafka import KafkaProducer
+from kafka.errors import KafkaError
+from kafka.client import KafkaClient
+
+import re
+from textblob import TextBlob
 
 import json
 import os
 
-
 #get MASTER_SPARK host , KAFKA_HOST and port config from env variable
 MASTER_SPARK = os.environ['MASTER']
 KAFKA_HOST = os.environ['KAFKA_HOST']
+ZOOKEEPER_HOST = os.environ['ZOOKEEPER_HOST']
 
 schema = StructType([
         StructField("id", StringType(), True),
+        StructField("user_name", StringType(), True),
+        StructField("user_screen_name", StringType(), True),
+        StructField("lang", StringType(), True),
         StructField("text", StringType(), True),
         StructField("hashtag", StringType(), True),
         StructField("timestamp_ms", StringType(), True),
-        StructField("name", StringType(), True),
-        StructField("screen_name", StringType(), True)     
+        StructField("activity_type", StringType(), True)     
     ])
 # setting up conf obj for SparkContext
 conf = SparkConf()
 conf.setMaster(MASTER_SPARK)
 conf.setAppName("sentiment-job")
-conf.set("spark.executor.memory", "512m")
-conf.set("spark.cores.max","1")
-conf.set("spark.scheduler.mode", "FAIR")
+conf.set("spark.executor.memory", "1g")
+#conf.set("spark.cores.max","2")
+#conf.set("spark.scheduler.mode", "FAIR")
 
 # intializing spark context.
 sc = SparkContext(conf = conf)
 
 # intializing spark,sqlContext,StreamingContext obj.
 spark = SparkSession(sc);
-#sqlContext = SQLContext(sc);
+sqlContext = SQLContext(sc);
 ssc = StreamingContext(sc, 2)
 
 # kafka-spark stream.
-kafkaTwitterStream = KafkaUtils.createDirectStream(ssc,["activity"], {"metadata.broker.list": KAFKA_HOST})
-print(kafkaTwitterStream)
+#kafkaTwitterStream = KafkaUtils.createDirectStream(ssc,["activity"], {"metadata.broker.list": KAFKA_HOST})
+kafkaTwitterStream = KafkaUtils.createStream(ssc, ZOOKEEPER_HOST, "sentiment-job-group", {"activity": 1})
+
+#, "group.id" :"sentiment-job", "auto.offset.reset" : "earliest"
+
+producer = KafkaProducer(bootstrap_servers=KAFKA_HOST, value_serializer=lambda v: json.dumps(v).encode('utf-8'))
 
 # text coming as tuple (None,Tweet_data) 
 def format_twitter_data(text):
-	print("@@@@@@@@@@@@@@")
-	print(text)
 	return json.loads(text[1]);
 
+def get_tweet_sentiment(r):
+    #Convert to python dict
+    temp = r.asDict();
+    #tweets_with_sentiment = {}
+    for tw_key,tw_value in temp.items():
+        if( tw_value == None):
+            temp[tw_key] = "";
+
+    text = temp.get("text");
+    text = clean_tweet(text);
+    temp["text"]  = text;
+    lang = temp.get("lang");
+    activity_type = temp.get("activity_type");
+    
+    analysis = TextBlob(text)
+    temp["polarity"] = analysis.sentiment.polarity;
+    if temp["polarity"] > 0:
+        temp["sentiment"] = 'positive'
+    elif temp["polarity"] == 0:
+        temp["sentiment"] = 'neutral'
+    else:
+        temp["sentiment"] ='negative'
+
+    # if(activity_type == "tweet" or activity_type == "quote"):
+        
+
+        #tweets_with_sentiment.update(temp)
+    
+    output = Row(**temp);
+    return output
+    
+
+    
+# [{'id': '1002054275588083712', 'user_name': 'Rachit Seth', 'text': 'Perspective: This is the same seat which the BJP got countermanded because Prakash Javadekar lied about some voter… https://t.co/IQcmgqTIaC', 'timestamp_ms': '1527743331225', 'user_screen_name': 'rachitseth', 'hashtag': 'bypolls', 'lang': 'en', 'activity_type': 'quote'}, {'id': '1002054301768933376', 'user_name': 'Shailabh', 'text': 'Counting of votes underway in 4 Loksabha seats and 10 assembly seats across different states that went for bypolls… https://t.co/eDr6LL23eT', 'timestamp_ms': '1527743337467', 'user_screen_name': 'shailabhnandan', 'hashtag': 'bypolls', 'lang': 'en', 'activity_type': 'tweet'}]
+
+# r = {'id': '1002054275588083712', 'user_name': 'Rachit Seth', 'text': 'Perspective: This is the same seat which the BJP got countermanded because Prakash Javadekar lied about some voter… https://t.co/IQcmgqTIaC', 'timestamp_ms': '1527743331225', 'user_screen_name': 'rachitseth', 'hashtag': 'bypolls', 'lang': 'en', 'activity_type': 'tweet'}
+
+
+def clean_tweet(tweet):
+    '''
+    Utility function to clean tweet text by removing links, special characters
+    using simple regex statements.
+    '''
+    return ' '.join(re.sub("(@[A-Za-z0-9]+)|([^0-9A-Za-z \t])|(\w+:\/\/\S+)", " ", tweet).split())
+
+def lang_filter(r,r2):
+    temp = r.asDict();
+    if(temp.get('lang') == 'en'):
+        return True;
+    else:
+        return False;    
+
+
+
 def extract_each_RDD(rdd):
-   	#print(rdd.count())
-    if(rdd.isEmpty()): 
+
+    if(rdd.isEmpty()):
         print("Rdd empty.");
+
     else:
         print("Rdd not empty."); 
         tweets_df = spark.createDataFrame(rdd,schema);
         tweets_df.createOrReplaceTempView("tweets");
-        twitterEntityDF = spark.sql("SELECT id,hashtag,text,timestamp_ms from tweets");
-        print(twitterEntityDF)
-        #twitterEntityRDD = twitterEntityDF.rdd.map(format_tweet);
-         
+        twitterEntityDF = spark.sql("SELECT id,user_name, user_screen_name, hashtag,text,timestamp_ms,lang,activity_type from tweets where lang='en' and (activity_type == 'tweet' or activity_type == 'quote') ");
+        #print(twitterEntityDF.rdd.collect())
+        twitterEntityRDD = twitterEntityDF.rdd.map(get_tweet_sentiment);
+        #print(twitterEntityRDD.collect());
+        #twitterEntityRDD = get_tweet_sentiment(r);
+        if (not twitterEntityRDD.isEmpty()):
+            twitterDFToWrite = sqlContext.createDataFrame(twitterEntityRDD);
+            print(twitterDFToWrite.show()); 
+            twitterDFToWrite.write.mode('append').parquet("sentiment.parquet")
+      
+            for tweet in twitterEntityRDD.collect():
+                producer.send("sentiment",tweet.asDict());
+
+            producer.flush(); 
 
 (kafkaTwitterStream.map(format_twitter_data).foreachRDD(extract_each_RDD));
 
@@ -75,5 +148,4 @@ ssc.awaitTermination()
 
 sc.stop();
 
-
-# {"name": "Harbender", "coordinates": "", "url_4": "", "hashtag_2": "bypolls", "url_2": "", "followers_count": 38, "user_mention_name_4": "", "hashtag_5": "", "verified": false, "user_mention_name_5": "", "user_mention_name_1": "Shalini Chaurasiya (84ya ji)", "user_mention_screen_name_2": "", "url_3": "", "location": "New Delhi, India", "timestamp_ms": "1527674691224", "user_mention_screen_name_3": "", "hashtag_3": "", "statuses_count": 866, "user_mention_name_3": "", "friends_count": 77, "user_mention_screen_name_5": "", "hashtag_1": "Indian_Media_Died", "url_5": "", "hashtag": "bypolls", "hashtag_4": "", "user_mention_screen_name_4": "", "id": "1001766378557313024", "screen_name": "Harbender2", "url_1": "", "text": "RT @ShaliniChaura15: #Indian_Media_Died\n#bypolls \n\u092e\u0940\u0921\u093f\u092f\u093e \u092c\u093f\u0915 \u091a\u0941\u0915\u093e \u0939\u0948 \u092a\u0948\u0938\u0947 \u0915\u0940 \u0932\u093e\u0932\u091a \u092e\u0947\u0902 \u0905\u092a\u0928\u093e \u0909\u0926\u094d\u0926\u0947\u0936\u094d\u092f \u092d\u0942\u0932 \u0917\u092f\u093e \u0939\u0948\u0964\u0907\u0938 \u092e\u0940\u0921\u093f\u092f\u093e \u0915\u0947 \u0915\u093e\u0930\u0923 \u0905\u092a\u0928\u0947 \u092d\u093e\u0930\u0924\u2026", "user_mention_screen_name_1": "ShaliniChaura15", "profile_image_url": "http://pbs.twimg.com/profile_images/1001020609466429440/LejKmV0w_normal.jpg", "user_mention_name_2": "", "profile_background_image_url": ""}
+#spark-submit --packages org.apache.spark:spark-streaming-kafka-0-8_2.11:2.3.0 /app/sentiment-job/sentiment.py
