@@ -117,6 +117,7 @@ services:
       - "5001:5001"
     volumes:
       - ./twitter-api:/app
+      - ./data/loki:/data
     depends_on:
       - twitter-stream
 

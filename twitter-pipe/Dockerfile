@@ -31,9 +31,7 @@ WORKDIR /app
 
 #Install requirements.txt
 ADD requirements.txt /app/requirements.txt
-RUN pip install -r requirements.txt
-RUN python -m textblob.download_corpora
+RUN pip install -r requirements.txt && \
+	python -m textblob.download_corpora
 
-#copy code from current folder to /app folder
-#ADD . /app
 
