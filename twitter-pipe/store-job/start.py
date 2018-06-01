@@ -28,9 +28,7 @@ schema = StructType([
         StructField("timestamp_ms", StringType(), True),
         StructField("coordinates", StringType(), True),
         StructField("lang", StringType(), True),
-        StructField("is_quote_status", BooleanType(), True),
-        StructField("favorited", BooleanType(), True),
-        StructField("retweeted", BooleanType(), True),
+        StructField("favorite_count", IntegerType(), True),
         StructField("user",StructType([
                     StructField("name", StringType(), True),
                     StructField("screen_name", StringType(), True),
@@ -41,6 +39,14 @@ schema = StructType([
                     StructField("followers_count", IntegerType(), True),
                     StructField("friends_count", IntegerType(), True),
                     StructField("statuses_count", IntegerType(), True)
+                ])
+            , True),
+        StructField("retweeted_status",StructType([
+                    StructField("id", StringType(), True)
+                ])
+            , True),
+        StructField("quoted_status",StructType([
+                    StructField("id", StringType(), True)
                 ])
             , True),
         StructField("entities",StructType([
@@ -80,6 +86,7 @@ spark = SparkSession(sc);
 sqlContext = SQLContext(sc);
 ssc = StreamingContext(sc, 5)
 
+
 kvs = KafkaUtils.createStream(ssc, ZOOKEEPER_HOST, "store-job-group", {"hashtag": 1})
 
 producer = KafkaProducer(bootstrap_servers=KAFKA_HOST, value_serializer=lambda v: json.dumps(v).encode('utf-8'))
@@ -94,26 +101,25 @@ def format_tweet(r):
         if( tw_value == None):
             temp[tw_key] = "";
     
-    if(temp.get("is_quote") == True):
+    if(temp.get("quoted_status_id")):
         temp["activity_type"] = "quote";
-    elif(temp.get("is_favorite") == True):
+    elif(temp.get("favorite_count") > 0):
         temp["activity_type"] = "favorite";
-    elif(temp.get("is_retweet") == True):
+    elif(temp.get("retweeted_status_id")):
         temp["activity_type"] = "retweet";
     else:
         temp["activity_type"] = "tweet";    
     
     user_mentions = temp.get("user_mentions"); 
     hashtags = temp.get("hashtags"); 
-    urls = temp.get("urls"); 
-
+    urls = temp.get("urls");
 
     if (user_mentions != None):
         um_len = len(user_mentions);
         while um_len < LIMIT_COUNT:
             user_mentions.append({
-                "name":"",
-                "screen_name":""
+                "name": "",
+                "screen_name": ""
                 });
             um_len = um_len + 1;
         user_mentions = user_mentions[:LIMIT_COUNT]        
@@ -208,7 +214,7 @@ def extract_each_RDD(rdd):
         tweets_df = spark.createDataFrame(rdd,schema);
         tweets_df.createOrReplaceTempView("tweets");
         twitterEntityDF = spark.sql("SELECT id,hashtag,text,timestamp_ms,coordinates,source,lang,\
-                                    is_quote_status as is_quote,favorited as is_favorite,retweeted as is_retweet,\
+                                    quoted_status.id as quoted_status_id,favorite_count ,retweeted_status.id as retweeted_status_id,\
                                     user.name as user_name,user.screen_name as user_screen_name,\
                                     user.location as user_location,\
                                     user.profile_background_image_url as user_profile_background_image_url,\

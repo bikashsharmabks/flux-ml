@@ -55,8 +55,6 @@ ssc = StreamingContext(sc, 2)
 #kafkaTwitterStream = KafkaUtils.createDirectStream(ssc,["activity"], {"metadata.broker.list": KAFKA_HOST})
 kafkaTwitterStream = KafkaUtils.createStream(ssc, ZOOKEEPER_HOST, "sentiment-job-group", {"activity": 1})
 
-#, "group.id" :"sentiment-job", "auto.offset.reset" : "earliest"
-
 producer = KafkaProducer(bootstrap_servers=KAFKA_HOST, value_serializer=lambda v: json.dumps(v).encode('utf-8'))
 
 # text coming as tuple (None,Tweet_data) 
