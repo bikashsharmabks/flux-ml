@@ -9,19 +9,37 @@ var influxDb = module.exports = {
 }
 
 var schema = [{
-	measurement: 'tweets',
+	measurement: 'activity',
 	fields: {
-		locationCount: Influx.FieldType.INTEGER, // 1
-		verifiedCount: Influx.FieldType.INTEGER, // 1
-		linkCount: Influx.FieldType.INTEGER, // calculate
-		retweetCount: Influx.FieldType.INTEGER, // 1
-		imageCount: Influx.FieldType.INTEGER, // calculate how many coming.
-		HashtagCount: Influx.FieldType.INTEGER, // calculate how many coming.
+		locationCount: Influx.FieldType.INTEGER,
+		verifiedCount: Influx.FieldType.INTEGER,
+		activityCount: Influx.FieldType.INTEGER,
+		userCount: Influx.FieldType.INTEGER,
+		hashtagCount: Influx.FieldType.INTEGER
 	},
 	tags: [
-		'hashtag', 'location', 'verified', 'link', 'retweet', 'image', 'hashtag', 'mentions',
+		'hashtag', 'location', 'verified', "activityType", "userId"
+	]
+}, {
+	measurement: 'user_mention',
+	fields: {
+		userCount: Influx.FieldType.INTEGER
+	},
+	tags: [
+		'hashtag',
+		"userId"
+	]
+},{
+	measurement: 'hashtag',
+	fields: {
+		hashtagCount: Influx.FieldType.INTEGER
+	},
+	tags: [
+		'hashtag',
+		"otherHashtag"
 	]
 }];
+
 
 
 /**
@@ -64,9 +82,34 @@ function setUpDatabase(influx, host, dbName) {
 		})
 		.then(() => {
 			console.log('Influx database already setup.');
+			// addContinuousQuery(influx);
 		})
 		.catch(err => {
 			console.log(err)
 			throw new Error('Error creating Influx database!');
 		});
+}
+
+
+function addContinuousQuery(influx) {
+
+	if (!influx || !influx.query) {
+		console.log('Please start influxDB.')
+		return;
+	}
+
+	influx.showContinousQueries().then(function(res) {
+		if (res.length < 1) {
+			//  activity  minute data
+			influx.query(`CREATE CONTINUOUS QUERY cq_min_activity ON tweet_timeseries
+ RESAMPLE EVERY 10s
+BEGIN
+  SELECT sum("locationCount") as locationCount , 
+  sum("verifiedCount") as verifiedCount, sum("activityCount") 
+  as activityCount  INTO "minute_activity_data" FROM "activity" GROUP BY time(1m),*  
+END`).then(results => {
+				console.log('CONTINUOUS QUERY cq_min_activity.')
+			})
+		}
+	})
 }

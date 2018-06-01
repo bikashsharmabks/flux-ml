@@ -33,6 +33,7 @@ schema = StructType([
         StructField("retweeted", BooleanType(), True),
         StructField("user",StructType([
                     StructField("name", StringType(), True),
+                    StructField("id", StringType(), True),
                     StructField("screen_name", StringType(), True),
                     StructField("location", StringType(), True),
                     StructField("profile_background_image_url", StringType(), True),
@@ -215,7 +216,7 @@ def extract_each_RDD(rdd):
         twitterEntityDF = spark.sql("SELECT id,hashtag,text,timestamp_ms,coordinates,source,lang,\
                                     is_quote_status as is_quote,favorited as is_favorite,retweeted as is_retweet,\
                                     user.name as user_name,user.screen_name as user_screen_name,\
-                                    user.location as user_location,\
+                                    user.location as user_location,user.id as user_id,\
                                     user.profile_background_image_url as user_profile_background_image_url,\
                                     user.profile_image_url as user_profile_image_url,\
                                     user.verified as user_verified,\

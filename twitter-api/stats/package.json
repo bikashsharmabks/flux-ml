@@ -8,10 +8,15 @@
     "start": "node server.js"
   },
   "dependencies": {
+    "bluebird": "^3.5.1",
     "influx": "^5.0.0-alpha.4",
+    "kafka-node": "^2.6.1",
     "lodash": "^4.17.4",
+    "lokijs": "^1.5.5",
+    "moment": "^2.22.1",
     "redis": "^2.6.5",
-    "request": "^2.80.0"
+    "request": "^2.87.0",
+    "restify": "^7.2.0"
   },
   "author": "",
   "license": "ISC"
