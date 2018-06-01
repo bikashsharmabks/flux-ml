@@ -27,9 +27,10 @@ var schema = [{
 	},
 	tags: [
 		'hashtag',
-		"userId"
+		"userScreenName",
+		"userName"
 	]
-},{
+}, {
 	measurement: 'hashtag',
 	fields: {
 		hashtagCount: Influx.FieldType.INTEGER
@@ -82,7 +83,7 @@ function setUpDatabase(influx, host, dbName) {
 		})
 		.then(() => {
 			console.log('Influx database already setup.');
-			// addContinuousQuery(influx);
+			addContinuousQuery(influx);
 		})
 		.catch(err => {
 			console.log(err)
@@ -99,6 +100,7 @@ function addContinuousQuery(influx) {
 	}
 
 	influx.showContinousQueries().then(function(res) {
+		console.log(res);
 		if (res.length < 1) {
 			//  activity  minute data
 			influx.query(`CREATE CONTINUOUS QUERY cq_min_activity ON tweet_timeseries
@@ -107,6 +109,7 @@ BEGIN
   SELECT sum("locationCount") as locationCount , 
   sum("verifiedCount") as verifiedCount, sum("activityCount") 
   as activityCount  INTO "minute_activity_data" FROM "activity" GROUP BY time(1m),*  
+
 END`).then(results => {
 				console.log('CONTINUOUS QUERY cq_min_activity.')
 			})

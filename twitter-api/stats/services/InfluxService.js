@@ -8,21 +8,47 @@ var path = require('path'),
 var DB_NAME = "tweet_timeseries";
 
 var InfluxService = module.exports = {
-	writeActivityMeasurement: writeActivityMeasurement
+	writeActivityMeasurement: writeActivityMeasurement,
+	writeUserMentionMeasurement: writeUserMentionMeasurement,
+	writeHashtagMeasurement: writeHashtagMeasurement,
+	getStatsByHashtag: getStatsByHashtag,
+	getTopUserMention: getTopUserMention,
+	getTopRelatedHashTag: getTopRelatedHashTag,
+	getActivityTimeSeriesData: getActivityTimeSeriesData
 }
 
 
 
-function writeActivityMeasurement(tagData, fieldData) {
+function writeActivityMeasurement(tweetData) {
 	return new Promise(function(resolve, reject) {
-		var locationCount = 1,
-			verifiedCount = 1,
-			activityCount = 1;
+
+		var location = tweetData.user_location ? tweetData.user_location : undefined,
+			verified = tweetData.user_verified,
+			activityType = tweetData.activity_type,
+			userId = tweetData.user_id ? tweetData.user_id : undefined,
+			hashtag = tweetData.hashtag;
+
+		var fieldData = {
+			"locationCount": location ? 1 : 0,
+			"verifiedCount": 1,
+			"activityCount": 1,
+			"userCount": 1,
+			"hashtagCount": 1
+		};
+
+		var tagData = {
+			'hashtag': hashtag,
+			'location': location,
+			'verified': verified,
+			"activityType": activityType,
+			"userId": userId
+		}
 
 		influx.writePoints([{
 			measurement: "activity",
 			tags: tagData,
-			fields: fieldData
+			fields: fieldData,
+			timestamp: new Date(parseInt(tweetData.timestamp_ms))
 		}], {
 			precision: 'u',
 			database: DB_NAME,
@@ -35,50 +61,301 @@ function writeActivityMeasurement(tagData, fieldData) {
 	});
 }
 
+function writeUserMentionMeasurement(tweetData) {
+	return new Promise(function(resolve, reject) {
 
-var tagData = {
+		var hashtag = tweetData.hashtag,
+			measurement = "user_mention";
 
-	location: "US", // 1
-	verified: "true", // 1
-	activityType: "tweet", // 1
-	userId: "ad3",
-	hashtag:"trump"
+		var points = [];
+
+		_.forOwn(tweetData, function(value, key) {
+
+			if (key.includes("user_mention_screen_name_")) {
+				if (tweetData[key]) {
+					points.push({
+						measurement: measurement,
+						tags: {
+							'hashtag': hashtag,
+							"userScreenName": tweetData[key],
+							"userName": tweetData[key.replace("user_mention_screen_name_", "user_mention_name_")]
+						},
+						fields: {
+							userCount: 1
+						},
+						timestamp: new Date(parseInt(tweetData.timestamp_ms))
+					})
+				}
+			}
+		});
+		console.log(points)
+
+		influx.writePoints(points, {
+			precision: 'u',
+			database: DB_NAME,
+		}).then(function(res) {
+			return resolve(points);
+		}).catch(err => {
+			console.log(`Error saving data to InfluxDB! ${err.stack}`)
+			return reject(err);
+		})
+	});
 }
 
-var fieldData = {
-	locationCount: 1,
-	verifiedCount: 1,
-	activityCount: 1,
-	userCount: 1,
-	hashtagCount: 1
+
+function writeHashtagMeasurement(tweetData) {
+	return new Promise(function(resolve, reject) {
+
+		var hashtag = tweetData.hashtag,
+			measurement = "hashtag";
+
+		var points = [];
+
+		_.forOwn(tweetData, function(value, key) {
+
+			if (key.includes("hashtag_")) {
+				if (tweetData[key]) {
+					points.push({
+						measurement: measurement,
+						tags: {
+							'hashtag': hashtag,
+							"otherHashtag": tweetData[key]
+						},
+						fields: {
+							hashtagCount: 1
+						},
+						timestamp: new Date(parseInt(tweetData.timestamp_ms))
+					})
+				}
+			}
+		});
+		console.log(points)
+
+		influx.writePoints(points, {
+			precision: 'u',
+			database: DB_NAME,
+		}).then(function(res) {
+			return resolve(points);
+		}).catch(err => {
+			console.log(`Error saving data to InfluxDB! ${err.stack}`)
+			return reject(err);
+		})
+	});
 }
 
 
-// var query = `select count(val) from activity where verified = 'true'  GROUP by userId `
-//         console.log(query);
+function getStatsByHashtag(hashtag) {
 
-//         influx.query(query).then(results => {
+	return new Promise(function(resolve, reject) {
 
-//             _.each(results, function(res) {
-//                 console.log('res------------', res)
+		var statObj = {};
 
-//             })
+		var verifiedCountQuery = `select count(verifiedUserCount) from(select count(userCount) 
+	as verifiedUserCount from activity 
+	where verified = 'true' and hashtag = '${hashtag}' group by userId)`
+
+		var userInteractedQuery = `select count(userCount) 
+		from(select count(userCount) as userCount from activity 
+		where hashtag = '${hashtag}' GROUP by  userId)`
+
+		var totalActivityQuery = `select count(activityCount) from activity 
+		where hashtag = '${hashtag}'`
+
+		console.log(verifiedCountQuery, userInteractedQuery);
+
+		influx.query(verifiedCountQuery).then(function(verifiedResult) {
+			_.each(verifiedResult, function(res) {
+				statObj["verifiedProfileCount"] = res.count
+			})
+			return influx.query(userInteractedQuery)
+		}).then(function(userInteractedResult) {
+			_.each(userInteractedResult, function(res) {
+				statObj["userInteractedCount"] = res.count
+			})
+			return influx.query(totalActivityQuery);
+		}).then(function(allActivityResult) {
+			_.each(allActivityResult, function(res) {
+				statObj["totalActivityCount"] = res.count
+			})
+			return resolve(statObj);
+		}).catch(function(err) {
+			console.log(err)
+			return reject(new Error("Something went wrong."));
+		})
+	})
+}
 
 
-//         }).catch(function(err) {
-//             //console.log(err)
-//             return reject(new Error("Something went wrong."));
-//         })
+function getTopUserMention(hashtag) {
+
+	return new Promise(function(resolve, reject) {
+
+		var topMentions = []
+
+		var topMentionQuery = `select top(userCount,userScreenName,3) as count 
+		  from  (select sum(userCount) as userCount from user_mention  where hashtag = '${hashtag}'
+		 GROUP by userScreenName)`
+
+
+
+		influx.query(topMentionQuery).then(function(topMentionRes) {
+			_.each(topMentionRes, function(res) {
+				topMentions.push({
+					"count": res.count,
+					"userScreenName": res.userScreenName
+				})
+			})
+			return resolve(topMentions);
+		}).catch(function(err) {
+			console.log(err)
+			return reject(new Error("Something went wrong."));
+		})
+	})
+}
+
+
+function getTopRelatedHashTag(hashtag) {
+
+	return new Promise(function(resolve, reject) {
+
+		var topHashtags = []
+
+		var topHashtagQuery = `select top(hashtagCount,otherHashtag,3) as count 
+		  from  (select sum(hashtagCount) as hashtagCount from hashtag  where hashtag = '${hashtag}'
+		 GROUP by otherHashtag)`
+
+
+
+		influx.query(topHashtagQuery).then(function(topHashtagRes) {
+			_.each(topHashtagRes, function(res) {
+				topHashtags.push({
+					"count": res.count,
+					"hashtag": res.otherHashtag
+				})
+			})
+			return resolve(topHashtags);
+		}).catch(function(err) {
+			console.log(err)
+			return reject(new Error("Something went wrong."));
+		})
+	})
+}
+
+
+function getActivityTimeSeriesData(hashtag) {
+
+	return new Promise(function(resolve, reject) {
+
+		var activityTSData = {
+			quote: [],
+			tweet: [],
+			favorite: [],
+			retweet: []
+		}
+
+		var activityTSQuery = `select sum(activityCount) as count from 
+		activity where hashtag = '${hashtag}' GROUP by activityType, time(1m)`
+
+
+
+		influx.query(activityTSQuery).then(function(activityData) {
+			_.each(activityData, function(res) {
+				activityTSData[res.activityType].push(res)
+			})
+			return resolve(activityTSData);
+		}).catch(function(err) {
+			console.log(err)
+			return reject(new Error("Something went wrong."));
+		})
+	})
+}
+
+
+
+// var tagData = {
+
+// 	location: "US", // 1
+// 	verified: "true", // 1
+// 	activityType: "tweet", // 1
+// 	userId: "ad3",
+// 	hashtag: "trump"
+// }
+
+// var fieldData = {
+// 	locationCount: 1,
+// 	verifiedCount: 1,
+// 	activityCount: 1,
+// 	userCount: 1,
+// 	hashtagCount: 1
+// }
+
+// select sum(activityCount) as count from activity GROUP by activityType, time(1 m)
+
+// select sum(count) from (select sum(activityCount) as count from activity GROUP by activityType) GROUP by time(1m)
+// select top(userCount,userScreenName,3) as count from  (select sum(userCount) as userCount from user_mention  GROUP by userScreenName)
+// select top(hashtagCount,otherHashtag,3) as count from  (select sum(hashtagCount) as hashtagCount from hashtag  GROUP by otherHashtag)
+
+// var r = {
+// 	"user_verified": false,
+// 	"user_mention_screen_name_5": "",
+// 	"user_friends_count": 1500,
+// 	"coordinates": "",
+// 	"url_4": "",
+// 	"source": "<a href=\"http://twitter.com/download/android\" rel=\"nofollow\">Twitter for Android</a>",
+// 	"user_followers_count": 6617,
+// 	"hashtag_2": "bypolls",
+// 	"activity_type": "retweet",
+// 	"user_mention_name_4": "",
+// 	"hashtag_5": "",
+// 	"user_mention_screen_name_4": "",
+// 	"user_mention_name_5": "",
+// 	"user_mention_name_1": "CA. RAJEEV GUPTA",
+// 	"user_mention_screen_name_2": "",
+// 	"url_3": "",
+// 	"user_mention_screen_name_3": "",
+// 	"timestamp_ms": "1527846312433",
+// 	"user_mention_screen_name_1": "RajeevGuptaCA",
+// 	"user_profile_image_url": "http://pbs.twimg.com/profile_images/905860334988148737/0N8ZNeZ5_normal.jpg",
+// 	"hashtag_3": "",
+// 	"favorite_count": 0,
+// 	"user_mention_name_3": "",
+// 	"retweeted_status_id": "1002459570533326848",
+// 	"user_name": "ANAND",
+// 	"url_1": "https://t.co/jQtzzHkakG",
+// 	"url_5": "",
+// 	"hashtag": "bypolls",
+// 	"hashtag_4": "",
+// 	"lang": "en",
+// 	"id": "1002486210080542720",
+// 	"user_statuses_count": 112722,
+// 	"user_screen_name": "dubeyback",
+// 	"hashtag_1": "bypoll",
+// 	"text": "RT @RajeevGuptaCA: How can the BJP still win more than 400 seats in the 2019 general elections?\nhttps://t.co/jQtzzHkakG\n#bypoll #bypolls #B\u2026",
+// 	"quoted_status_id": "",
+// 	"user_profile_background_image_url": "",
+// 	"url_2": "",
+// 	"user_mention_name_2": "",
+// 	"user_location": " India"
+// }
+
+
+// setTimeout(function() {
+// 	writeUserMentionMeasurement(r)
+// 	writeHashtagMeasurement(r)
+// }, 2000)
+
+// select count(userCount) from(select count(userCount) as userCount from activity where hashtag = 'ipl' GROUP by  userId)
+
 
 // setInterval(function() {
-// 	writeActivityMeasurement(tagData, fieldData).then(function(res) {
+// 	writeActivityMeasurement(tagData, fieldData,new Date().getTime()).then(function(res) {
 // 		console.log(res)
 // 	}).catch(function(err) {
 // 		console.log(err)
 // 	})
 // }, 2000)
 
-// select count(count) from(select count(userCount) from activity where verified = 'true'	GROUP by userId)
+// select count(verifiedCount) from(select count(userCount) as verifiedCount from activity where verified = 'true' and hashtag = 'ipl' group by userId)
 
 
 

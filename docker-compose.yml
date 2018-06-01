@@ -114,6 +114,7 @@ services:
     container_name: twitter-api
     image: node:8
     hostname: twitter-api
+    command: node /app/stats/server.js
     ports:
       - "5001:5001"
     volumes:

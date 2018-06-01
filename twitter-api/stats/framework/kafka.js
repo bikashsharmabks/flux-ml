@@ -52,24 +52,19 @@ function startActivityConsumer() {
   consumer.on('message', function(message) {
     var tweetData = JSON.parse(message.value);
     if (tweetData) {
-      var p = []
-
-      var fieldData = {
-        "locationCount": locationCount,
-        "verifiedCount": verifiedCount,
-        "activityCount": activityCount
-      };
-
-      var tagData = {
-        'hashtag': "",
-        'location': tweetData.user_location ? tweetData.user_location : undefined,
-        'verified': tweetData.user_verified,
-        "activityType": tweetData.activityType,
-        "userId": tweetData.user_id ? tweetData.user_id : undefined
-      }
-      Service.InfluxService.writeActivityMeasurement(tagData).then(function(res) {
-        console.log("#" + res.hashtag + " data added.")
-      })
+      Service.InfluxService.writeActivityMeasurement(tweetData).then(function(res) {
+        console.log("#" + tweetData.hashtag + " Activity data added.");
+        return Service.InfluxService.writeUserMentionMeasurement(tweetData);
+      }).then(function() {
+        return Service.InfluxService.writeUserMentionMeasurement(tweetData);
+      }).then(function() {
+        console.log("#" + tweetData.hashtag + " userMention data added.");
+        return Service.InfluxService.writeHashtagMeasurement(tweetData);
+      }).then(function() {
+        console.log("#" + tweetData.hashtag + " Otherhashtag data added.");
+      }).catch(function(err) {
+        console.log(err);
+      });
     }
   });
 }
@@ -78,4 +73,4 @@ function startActivityConsumer() {
 
 
 // select(Top(val, 3)), userId  from activity where verified = 'true'
-// select count(userCount)  from activity 
+// select count(userCount)  from activity
