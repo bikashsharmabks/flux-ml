@@ -23,6 +23,7 @@ import os
 #get MASTER_SPARK host , KAFKA_HOST and port config from env variable
 MASTER_SPARK = os.environ['MASTER']
 KAFKA_HOST = os.environ['KAFKA_HOST']
+ZOOKEEPER_HOST = os.environ['ZOOKEEPER_HOST']
 
 schema = StructType([
         StructField("id", StringType(), True),
@@ -39,8 +40,8 @@ conf = SparkConf()
 conf.setMaster(MASTER_SPARK)
 conf.setAppName("sentiment-job")
 conf.set("spark.executor.memory", "1g")
-conf.set("spark.cores.max","1")
-conf.set("spark.scheduler.mode", "FAIR")
+#conf.set("spark.cores.max","2")
+#conf.set("spark.scheduler.mode", "FAIR")
 
 # intializing spark context.
 sc = SparkContext(conf = conf)
@@ -51,7 +52,8 @@ sqlContext = SQLContext(sc);
 ssc = StreamingContext(sc, 2)
 
 # kafka-spark stream.
-kafkaTwitterStream = KafkaUtils.createDirectStream(ssc,["activity"], {"metadata.broker.list": KAFKA_HOST})
+#kafkaTwitterStream = KafkaUtils.createDirectStream(ssc,["activity"], {"metadata.broker.list": KAFKA_HOST})
+kafkaTwitterStream = KafkaUtils.createStream(ssc, ZOOKEEPER_HOST, "sentiment-job-group", {"activity": 1})
 
 producer = KafkaProducer(bootstrap_servers=KAFKA_HOST, value_serializer=lambda v: json.dumps(v).encode('utf-8'))
 

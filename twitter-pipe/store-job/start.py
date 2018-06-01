@@ -70,7 +70,7 @@ conf = SparkConf()
 conf.setMaster(MASTER_SPARK)
 conf.setAppName("store-job")
 conf.set("spark.executor.memory", "1g")
-#conf.set("spark.cores.max","1")
+#conf.set("spark.cores.max","2")
 
 # intializing spark context.
 sc = SparkContext(conf = conf)
