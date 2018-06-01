@@ -107,6 +107,8 @@ data/redis
 data/parquet
 #influxdb file
 data/influxdb
+#loki file
+data/loki
 
 # mypy
 .mypy_cache/
