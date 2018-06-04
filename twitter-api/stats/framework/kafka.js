@@ -53,15 +53,13 @@ function startActivityConsumer() {
     var tweetData = JSON.parse(message.value);
     if (tweetData) {
       Service.InfluxService.writeActivityMeasurement(tweetData).then(function(res) {
-        console.log("#" + tweetData.hashtag + " Activity data added.");
+        console.log("#" + tweetData.hashtag + " Activity data added.", res);
         return Service.InfluxService.writeUserMentionMeasurement(tweetData);
-      }).then(function() {
-        return Service.InfluxService.writeUserMentionMeasurement(tweetData);
-      }).then(function() {
-        console.log("#" + tweetData.hashtag + " userMention data added.");
+      }).then(function(umData) {
+        console.log("#" + tweetData.hashtag + " userMention data added.", umData);
         return Service.InfluxService.writeHashtagMeasurement(tweetData);
-      }).then(function() {
-        console.log("#" + tweetData.hashtag + " Otherhashtag data added.");
+      }).then(function(htData) {
+        console.log("#" + tweetData.hashtag + " Otherhashtag data added.", htData);
       }).catch(function(err) {
         console.log(err);
       });

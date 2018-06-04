@@ -15,10 +15,11 @@ var schema = [{
 		verifiedCount: Influx.FieldType.INTEGER,
 		activityCount: Influx.FieldType.INTEGER,
 		userCount: Influx.FieldType.INTEGER,
-		hashtagCount: Influx.FieldType.INTEGER
+		hashtagCount: Influx.FieldType.INTEGER,
+		emotionCount: Influx.FieldType.INTEGER
 	},
 	tags: [
-		'hashtag', 'location', 'verified', "activityType", "userId"
+		'hashtag', 'location', 'verified', "activityType", "userId", "emotion"
 	]
 }, {
 	measurement: 'user_mention',
@@ -83,7 +84,7 @@ function setUpDatabase(influx, host, dbName) {
 		})
 		.then(() => {
 			console.log('Influx database already setup.');
-			addContinuousQuery(influx);
+			// addContinuousQuery(influx);
 		})
 		.catch(err => {
 			console.log(err)

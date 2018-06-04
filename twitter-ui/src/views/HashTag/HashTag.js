@@ -12,15 +12,14 @@ class HashTag extends Component {
 
   constructor(props) {
     super(props);
-    this.state = {
-      activityCount: 0,
-      verified: 0,
-      userInteracted: 0,
-      topMentions: [],
-      topHashTags: [],
-      sentiments: [],
-      activities: [],
-      hashtag: "ipl"
+    this.state = { activityCount: 0,
+    	verified: 0, 
+    	userInteracted: 0,
+    	topMentions: [],
+    	topHashTags: [],
+    	sentiments: [],
+    	activities: [],
+      hashtag: "bypolls"
       //hashtag: props.routeParams.hashTag
     };
   }
@@ -73,6 +72,7 @@ class HashTag extends Component {
     } catch (err) {
       console.log(err)
     }
+
   }
 
 
