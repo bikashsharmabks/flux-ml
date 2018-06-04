@@ -13800,6 +13800,13 @@ base-chart.chart {
   margin-bottom: 10px;
   font-size: 1em !important; }
 
+.card-deck a.card.hashtags {
+  text-decoration: none !important;
+  color: #2a2c36; }
+
+.card-deck a.card.hashtags:hover {
+  background-color: #f8f9fa; }
+
 .email-app {
   display: flex;
   flex: 1;

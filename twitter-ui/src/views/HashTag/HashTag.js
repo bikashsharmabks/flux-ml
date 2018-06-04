@@ -7,15 +7,16 @@ import Sentiment from '../../components/Sentiment/Sentiment.js'
 import TrendChart from '../../components/TrendChart/TrendChart.js'
 
 
-class Dashboard extends Component {
+class HashTag extends Component {
 
   render() {
+  	
     return (
       <div className="animated fadeIn">
 
       	<div className="row mt-2">
 	  		<div className="col-sm-6 col-lg-3">
-	  			<div className="h2 font-weight-bold">#CeBIT18</div>
+	  			<div className="h2 font-weight-bold">#{this.props.routeParams.hashTag}</div>
 	  		</div>
       	</div>
 
@@ -80,4 +81,4 @@ class Dashboard extends Component {
   }
 }
 
-export default Dashboard;
+export default HashTag;

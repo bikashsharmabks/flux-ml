@@ -18,3 +18,19 @@
 	margin-bottom:10px;
 	font-size: 1em !important;
 }
+
+
+.card-deck {
+	a.card.hashtags {
+		text-decoration: none !important;
+		color: $body-color;
+	}
+
+	a.card.hashtags:hover {
+		
+		background-color: $gray-lightest;
+	}
+	
+}
+
+
