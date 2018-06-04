@@ -13,15 +13,15 @@ var config = {
 	}
 }
 
+var loki = require('./framework/loki');
+loki.init()
+
 var influxDb = require('./framework/influx');
 influxDb.init(config.influx);
 
 var KafkaInstance = require('./framework/kafka');
 KafkaInstance.init(config.kafka);
 KafkaInstance.startActivityConsumer(KafkaInstance.client);
-
-var loki = require('./framework/loki');
-loki.init()
 
 
 
@@ -39,4 +39,13 @@ server.get('/api/hashtags/:hashtag/activity-timeseries-data', RequestHandler.get
 
 server.listen(5001, function() {
 	console.log('%s listening at %s', server.name, server.url);
+});
+
+
+process.on('uncaughtException', function(err) {
+	console.log('process uncaughtException, STOP THE PRESS', err)
+});
+
+process.on('exit', function() {
+	console.log('exiting process');
 });

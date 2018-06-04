@@ -2,7 +2,7 @@ var loki = require('lokijs'),
 	fs = require('fs');
 
 
-var LOKI_DB_PATH = "/data/lokistore.db";
+var LOKI_DB_PATH = "/data/tweetstore.db";
 
 
 
@@ -22,11 +22,11 @@ function init() {
 	}
 
 	var db = new loki(LOKI_DB_PATH, {
-		autoloadCallback: databaseInitialize,
 		autosaveInterval: 1000,
 		autosave: true,
 		autoload: true,
-		autoloadCallback: databaseLoaded
+		// autoloadCallback: databaseLoaded,
+		autoloadCallback: databaseInitialize
 	});
 
 	function databaseInitialize() {
@@ -95,6 +95,6 @@ function updateDatabase(db) {
 }
 
 // setTimeout(function() {
-// 	console.log(insertHashtag("ad7"))
+// 	console.log(insertHashtag("ad9"))
 // 	console.log(findAllHashtag())
 // }, 5000)

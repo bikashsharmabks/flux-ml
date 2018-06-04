@@ -84,7 +84,7 @@ function setUpDatabase(influx, host, dbName) {
 		})
 		.then(() => {
 			console.log('Influx database already setup.');
-			addContinuousQuery(influx);
+			// addContinuousQuery(influx);
 		})
 		.catch(err => {
 			console.log(err)
