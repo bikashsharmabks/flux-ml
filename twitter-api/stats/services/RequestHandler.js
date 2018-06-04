@@ -14,9 +14,11 @@ var PYTHON_SERVER_HOST = "http://twitter-stream:5000"
 var RequestHandler = module.exports = {
 	startHashtagJob: startHashtagJob,
 	stopHashtagJob: stopHashtagJob,
+	getAllHashtags: getAllHashtags,
 	getStatsByHashtag: getStatsByHashtag,
 	getTopUserMention: getTopUserMention,
 	getTopRelatedHashTag: getTopRelatedHashTag,
+	getEmotionCount: getEmotionCount,
 	getActivityTimeSeriesData: getActivityTimeSeriesData
 }
 
@@ -103,6 +105,19 @@ function getTopRelatedHashTag(req, res, next) {
 	})
 }
 
+function getEmotionCount(req, res, next) {
+	var hashtag = req.params.hashtag;
+	var InfluxService = require('./InfluxService');
+	InfluxService.getEmotionCount(hashtag).then(function(statData) {
+		res.send(200, statData);
+		next();
+	}).catch(function(err) {
+		res.status(500);
+		res.send(err);
+		next();
+	})
+}
+
 function getActivityTimeSeriesData(req, res, next) {
 	var hashtag = req.params.hashtag;
 	var InfluxService = require('./InfluxService');
@@ -114,4 +129,9 @@ function getActivityTimeSeriesData(req, res, next) {
 		res.send(err);
 		next();
 	})
+}
+
+function getAllHashtags(req, res, next) {
+	res.send(200, loki.findAllHashtag());
+	next();
 }

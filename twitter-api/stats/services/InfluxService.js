@@ -14,7 +14,8 @@ var InfluxService = module.exports = {
 	getStatsByHashtag: getStatsByHashtag,
 	getTopUserMention: getTopUserMention,
 	getTopRelatedHashTag: getTopRelatedHashTag,
-	getActivityTimeSeriesData: getActivityTimeSeriesData
+	getActivityTimeSeriesData: getActivityTimeSeriesData,
+	getEmotionCount: getEmotionCount
 }
 
 
@@ -26,14 +27,16 @@ function writeActivityMeasurement(tweetData) {
 			verified = tweetData.user_verified,
 			activityType = tweetData.activity_type,
 			userId = tweetData.user_id ? tweetData.user_id : undefined,
-			hashtag = tweetData.hashtag;
+			hashtag = tweetData.hashtag,
+			sentiment = tweetData.sentiment;
 
 		var fieldData = {
 			"locationCount": location ? 1 : 0,
 			"verifiedCount": 1,
 			"activityCount": 1,
 			"userCount": 1,
-			"hashtagCount": 1
+			"hashtagCount": 1,
+			"emotionCount": 1
 		};
 
 		var tagData = {
@@ -41,7 +44,8 @@ function writeActivityMeasurement(tweetData) {
 			'location': location,
 			'verified': verified,
 			"activityType": activityType,
-			"userId": userId
+			"userId": userId,
+			"emotion": sentiment
 		}
 
 		influx.writePoints([{
@@ -213,6 +217,31 @@ function getTopUserMention(hashtag) {
 	})
 }
 
+function getEmotionCount(hashtag) {
+
+	return new Promise(function(resolve, reject) {
+
+
+		var emotionQuery = `select sum(emotionCount) as count from activity where hashtag = '${hashtag}' group by emotion`
+
+
+
+		influx.query(emotionQuery).then(function(emotionRes) {
+			var emotions = []
+			_.each(emotionRes, function(res) {
+				emotions.push({
+					"count": res.count,
+					"sentiment": res.emotion
+				})
+			})
+			return resolve(emotions);
+		}).catch(function(err) {
+			console.log(err)
+			return reject(new Error("Something went wrong."));
+		})
+	})
+}
+
 
 function getTopRelatedHashTag(hashtag) {
 
@@ -241,7 +270,7 @@ function getTopRelatedHashTag(hashtag) {
 	})
 }
 
-
+// select sum(emotionCount) as count from activity where hashtag = 'ipl' GROUP by emotion, time(1m)
 function getActivityTimeSeriesData(hashtag) {
 
 	return new Promise(function(resolve, reject) {
@@ -269,6 +298,9 @@ function getActivityTimeSeriesData(hashtag) {
 		})
 	})
 }
+
+
+// select sum(emotionCount) from activity where hashtag = 'ipl' group by emotion
 
 
 

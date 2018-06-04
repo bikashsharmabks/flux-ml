@@ -17,6 +17,9 @@ from kafka.client import KafkaClient
 import json
 import os
 
+import re
+from textblob import TextBlob
+
 
 
 # dataframe schema for extracting features from twitter stream data
@@ -195,6 +198,21 @@ def format_tweet(r):
                 temp["url_"+ str(m)] = v
                              
             m = m + 1; 
+
+    text = temp.get("text");
+    text = clean_tweet(text);
+    temp["text"]  = text;
+    lang = temp.get("lang");
+    activity_type = temp.get("activity_type");
+    
+    analysis = TextBlob(text)
+    temp["polarity"] = analysis.sentiment.polarity;
+    if temp["polarity"] > 0:
+        temp["sentiment"] = 'positive'
+    elif temp["polarity"] == 0:
+        temp["sentiment"] = 'neutral'
+    else:
+        temp["sentiment"] ='negative'        
                                     
         
             
@@ -205,6 +223,13 @@ def format_tweet(r):
     # Save or output the row to a pyspark rdd
     output = Row(**temp) 
     return output;
+
+def clean_tweet(tweet):
+    '''
+    Utility function to clean tweet text by removing links, special characters
+    using simple regex statements.
+    '''
+    return ' '.join(re.sub("(@[A-Za-z0-9]+)|([^0-9A-Za-z \t])|(\w+:\/\/\S+)", " ", tweet).split())
 
 def extract_each_RDD(rdd):
     print(rdd.count())
