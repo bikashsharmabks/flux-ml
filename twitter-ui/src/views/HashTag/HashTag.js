@@ -9,7 +9,62 @@ import TrendChart from '../../components/TrendChart/TrendChart.js'
 
 class HashTag extends Component {
 
+  constructor(props) {
+    super(props);
+    this.state = { activityCount: 0,
+    	verified: 0, 
+    	userInteracted: 0,
+    	topMentions: [],
+    	topHashTags: [],
+    	sentiments: [],
+    	activities: [] };
+  }
+
+  componentDidMount() {
+    this.interval = setInterval(() => {
+    	this.getCount()
+    	this.getActivities()
+    	this.top()
+    }, 2000);
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.interval);
+  }
+
+  getCount() {
+    this.setState(prevState => ({
+      activityCount: prevState.activityCount + 1,
+      verified: prevState.verified + 1,
+      userInteracted: prevState.userInteracted + 1
+    }));
+  }
+
+
+  getActivities() {
+    this.setState(prevState => ({
+      activities: []
+    }));
+  }
+
+  top() {
+  	this.setState(prevState => ({
+      topMentions: [],
+      topHashTags: [],
+      sentiments: []
+    }));
+  }
+
+
   render() {
+
+  	const activityCount = this.state.activityCount
+  	const verified = this.state.verified
+  	const userInteracted = this.state.userInteracted
+  	const topMentions = []
+  	const topHashTags = []
+  	const sentiments = []
+  	const activities = []
   	
     return (
       <div className="animated fadeIn">
@@ -28,7 +83,7 @@ class HashTag extends Component {
 						<StatCard 
 							text="Twitter Activities" 
 							icon="icon-social-twitter" 
-							value="8756">
+							value={activityCount}>
 						</StatCard>
 					</div>
 
@@ -36,7 +91,7 @@ class HashTag extends Component {
 						<StatCard 
 							text="Verified Profile" 
 							icon="fa fa-check-circle" 
-							value="32">
+							value={verified}>
 						</StatCard>
 					</div>
 
@@ -44,14 +99,14 @@ class HashTag extends Component {
 						<StatCard 
 							text="Users Interacted" 
 							icon="icon-people" 
-							value="6789">
+							value={userInteracted}>
 						</StatCard>
 					</div>
 				</div>
 
 				<div className="row">
 					<div className="col-lg-12">
-						<TrendChart></TrendChart>
+						<TrendChart source={activities}></TrendChart>
 					</div>
 				</div>
 			</div>
@@ -59,17 +114,17 @@ class HashTag extends Component {
 			<div className="col-lg-4">
 				<div className="row">
 					<div className="col-sm-6 col-lg-12">
-						<TopMention></TopMention>
+						<TopMention source={topMentions}></TopMention>
 					</div>
 				</div>
 				<div className="row">
 					<div className="col-sm-6 col-lg-12">
-						<TopHashTag></TopHashTag>
+						<TopHashTag source={topHashTags}></TopHashTag>
 					</div>
 				</div>
 				<div className="row">
 					<div className="col-sm-6 col-lg-12">
-						<Sentiment></Sentiment>
+						<Sentiment source={sentiments}></Sentiment>
 					</div>
 				</div>
 			</div>
