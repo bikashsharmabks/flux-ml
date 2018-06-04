@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import superagent from 'superagent';
 
 import StatCard from '../../components/StatCard/StatCard.js';
 import TopMention from '../../components/TopMention/TopMention.js'
@@ -17,7 +18,10 @@ class HashTag extends Component {
     	topMentions: [],
     	topHashTags: [],
     	sentiments: [],
-    	activities: [] };
+    	activities: [],
+      hashtag: "bypolls"
+      //hashtag: props.routeParams.hashTag
+    };
   }
 
   componentDidMount() {
@@ -33,13 +37,22 @@ class HashTag extends Component {
   }
 
   getCount() {
-    this.setState(prevState => ({
-      activityCount: prevState.activityCount + 1,
-      verified: prevState.verified + 1,
-      userInteracted: prevState.userInteracted + 1
-    }));
+    superagent.get('/api/hashtags/' + this.state.hashtag + '/stats')
+        .set('Accept', 'application/json')
+        .end ((error, response)=>{
+          if(error){
+            //handle error
+          }
+          else{
+            let res = response.body;
+            this.setState({
+              activityCount: res.totalActivityCount,
+              verified: res.verifiedProfileCount,
+              userInteracted: res.userInteractedCount
+            }); 
+          }   
+        });
   }
-
 
   getActivities() {
     this.setState(prevState => ({
@@ -47,12 +60,19 @@ class HashTag extends Component {
     }));
   }
 
-  top() {
-  	this.setState(prevState => ({
-      topMentions: [],
-      topHashTags: [],
-      sentiments: []
-    }));
+  async top() {
+      try {
+        var responseMention = await superagent.get('/api/hashtags/' + this.state.hashtag + '/top-user-mentions');
+        var responseHashtag = await superagent.get('/api/hashtags/' + this.state.hashtag + '/top-related-hashtags');
+        //var responseEmotion = await superagent.get('/api/hashtags/' + this.state.hashtag + '/emotion-count');
+          this.setState({
+              topMentions: responseMention.body,
+              topHashTags: responseHashtag.body,
+              //sentiments: responseEmotion.body
+           });
+        } catch (err) {
+          
+      }
   }
 
 
@@ -61,8 +81,8 @@ class HashTag extends Component {
   	const activityCount = this.state.activityCount
   	const verified = this.state.verified
   	const userInteracted = this.state.userInteracted
-  	const topMentions = []
-  	const topHashTags = []
+  	const topMentions = this.state.topMentions
+  	const topHashTags = this.state.topHashTags
   	const sentiments = []
   	const activities = []
   	

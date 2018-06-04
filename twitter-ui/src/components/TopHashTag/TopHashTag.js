@@ -7,6 +7,13 @@ class TopHashTag extends Component {
   }
 
   render() {
+     var topHashtags = this.props.source.map(function(th){
+            return (
+              <div className="col-12 mt-1">
+                  <span className="badge badge-success hashtags">#{th.hashtag}</span>
+              </div>
+            )
+          })
     return (
       <div className="card">
         <div className="card-block">
@@ -15,11 +22,7 @@ class TopHashTag extends Component {
             </div>
             <div className="h4 mb-0">Top Hashtags</div>
             <div className="row">
-              <div className="col-12 mt-1">
-                  <span className="badge badge-success hashtags">#CebitGermany</span>
-                  <span className="badge badge-success hashtags">#Event</span>
-                  <span className="badge badge-success hashtags">#MLAI</span>
-              </div>
+              {topHashtags}
             </div>
         </div>
       </div>
