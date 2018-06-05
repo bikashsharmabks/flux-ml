@@ -21,7 +21,7 @@ class TopHashTag extends Component {
             <div className="h4 mb-0">Top Hashtags</div>  
             <div className="row">
                 <div className="col-12 mt-1">
-              {topHashtags}
+                  {topHashtags}
                </div>
               </div>
             </div>

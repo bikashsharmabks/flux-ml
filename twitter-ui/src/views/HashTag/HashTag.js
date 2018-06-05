@@ -12,15 +12,16 @@ class HashTag extends Component {
 
   constructor(props) {
     super(props);
-    this.state = { activityCount: 0,
-    	verified: 0, 
-    	userInteracted: 0,
-    	topMentions: [],
-    	topHashTags: [],
-    	sentiments: [],
-    	activities: [],
-      hashtag: "bypolls"
-      //hashtag: props.routeParams.hashTag
+    this.state = {
+      activityCount: 0,
+      verified: 0,
+      userInteracted: 0,
+      topMentions: [],
+      topHashTags: [],
+      sentiments: [],
+      activities: [],
+      //hashtag: "bypolls"
+      hashtag: props.routeParams.hashTag
     };
   }
 
@@ -54,9 +55,18 @@ class HashTag extends Component {
   }
 
   getActivities() {
-    this.setState(prevState => ({
-      activities: []
-    }));
+    superagent.get('/api/hashtags/' + this.state.hashtag + '/activity-timeseries-data')
+      .set('Accept', 'application/json')
+      .end((error, response) => {
+        if (error) {
+          console.log("error", error)
+        } else {
+          //console.log("activity", response.body)
+          this.setState({
+            activities: response.body
+          });
+        }
+      });
   }
 
   async top() {
@@ -72,7 +82,6 @@ class HashTag extends Component {
     } catch (err) {
       console.log(err)
     }
-
   }
 
 
@@ -84,7 +93,7 @@ class HashTag extends Component {
   	const topMentions = this.state.topMentions
   	const topHashTags = this.state.topHashTags
   	const sentiments = this.state.sentiments
-  	const activities = []
+  	const activities = this.state.activities
   	
     return (
       <div className="animated fadeIn">
