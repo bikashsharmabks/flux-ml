@@ -1,9 +1,47 @@
 import React, { Component } from 'react';
-import { Link } from 'react-router'
+import { Link } from 'react-router';
+import superagent from 'superagent';
 
 class HashTags extends Component {
+	constructor(props) {
+		super(props);
+		this.state = {
+			hashtags: [],
+		};
+	}
+
+	componentDidMount() {
+		this.getHashtags();
+	}
+
+	getHashtags() {
+		superagent.get('/api/hashtags')
+			.set('Accept', 'application/json')
+			.end((error, response) => {
+				if (error) {
+					console.log(error)
+				} else {
+					this.setState({
+						hashtags: response.body
+					});
+				}
+			});
+	}
 
   render() {
+
+  	var allHashtags = this.state.hashtags.map(function(ah){
+  		console.log("ah", ah.hashtag);
+            return (
+                 <Link to={'/hashTags/' + ah.hashtag} key={ah.hashtag} className="card hashtags">
+					<div className="card-body p-1">
+					    <h4 key={ah.hashtag} className="card-title brand-success">#{ah.hashtag}</h4>
+					      <p className="card-text"><small className="text-muted">Last updated 3 mins ago</small></p>
+					</div>
+				</Link>
+            )
+          })
+
   	return (
 	  	<div className="animated fadeIn">
 
@@ -17,21 +55,7 @@ class HashTags extends Component {
 	        	<div className="col-lg-12">
 
 	        		<div className="card-deck">
-					  
-					  <Link to={'/hashTags/CeBIT2018'} className="card hashtags">
-					    <div className="card-body p-1">
-					      <h4 className="card-title brand-success">#CeBIT2018</h4>
-					      <p className="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
-					    </div>
-					  </Link>
-
-					  <Link to={'/hashTags/MondayMotivation'} className="card hashtags">
-					    <div className="card-body p-1">
-					      <h4 className="card-title">#MondayMotivation</h4>
-					      <p className="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
-					    </div>
-					  </Link>
-					 
+	        			{allHashtags}					 
 					</div>
 
 				</div>
@@ -40,7 +64,6 @@ class HashTags extends Component {
       	</div>
     )
   }
-
 }
 
 export default HashTags;

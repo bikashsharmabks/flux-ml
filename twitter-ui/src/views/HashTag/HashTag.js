@@ -12,24 +12,25 @@ class HashTag extends Component {
 
   constructor(props) {
     super(props);
-    this.state = { activityCount: 0,
-    	verified: 0, 
-    	userInteracted: 0,
-    	topMentions: [],
-    	topHashTags: [],
-    	sentiments: [],
-    	activities: [],
-      hashtag: "bypolls"
-      //hashtag: props.routeParams.hashTag
+    this.state = {
+      activityCount: 0,
+      verified: 0,
+      userInteracted: 0,
+      topMentions: [],
+      topHashTags: [],
+      sentiments: [],
+      activities: [],
+      //hashtag: "bypolls"
+      hashtag: props.routeParams.hashTag
     };
   }
 
   componentDidMount() {
     this.interval = setInterval(() => {
-    	this.getCount()
-    	this.getActivities()
-    	this.top()
-    }, 2000);
+      this.getCount()
+      this.getActivities()
+      this.top()
+    }, 5000);
   }
 
   componentWillUnmount() {
@@ -38,41 +39,49 @@ class HashTag extends Component {
 
   getCount() {
     superagent.get('/api/hashtags/' + this.state.hashtag + '/stats')
-        .set('Accept', 'application/json')
-        .end ((error, response)=>{
-          if(error){
-            //handle error
-          }
-          else{
-            let res = response.body;
-            this.setState({
-              activityCount: res.totalActivityCount,
-              verified: res.verifiedProfileCount,
-              userInteracted: res.userInteractedCount
-            }); 
-          }   
-        });
+      .set('Accept', 'application/json')
+      .end((error, response) => {
+        if (error) {
+          console.log(error)
+        } else {
+          let res = response.body;
+          this.setState({
+            activityCount: res.totalActivityCount,
+            verified: res.verifiedProfileCount,
+            userInteracted: res.userInteractedCount
+          });
+        }
+      });
   }
 
   getActivities() {
-    this.setState(prevState => ({
-      activities: []
-    }));
+    superagent.get('/api/hashtags/' + this.state.hashtag + '/activity-timeseries-data')
+      .set('Accept', 'application/json')
+      .end((error, response) => {
+        if (error) {
+          console.log("error", error)
+        } else {
+          //console.log("activity", response.body)
+          this.setState({
+            activities: response.body
+          });
+        }
+      });
   }
 
   async top() {
-      try {
-        var responseMention = await superagent.get('/api/hashtags/' + this.state.hashtag + '/top-user-mentions');
-        var responseHashtag = await superagent.get('/api/hashtags/' + this.state.hashtag + '/top-related-hashtags');
-        //var responseEmotion = await superagent.get('/api/hashtags/' + this.state.hashtag + '/emotion-count');
-          this.setState({
-              topMentions: responseMention.body,
-              topHashTags: responseHashtag.body,
-              //sentiments: responseEmotion.body
-           });
-        } catch (err) {
-          
-      }
+    try {
+      var responseMention = await superagent.get('/api/hashtags/' + this.state.hashtag + '/top-user-mentions');
+      var responseHashtag = await superagent.get('/api/hashtags/' + this.state.hashtag + '/top-related-hashtags');
+      var responseEmotion = await superagent.get('/api/hashtags/' + this.state.hashtag + '/emotion-count');
+      this.setState({
+        topMentions: responseMention.body,
+        topHashTags: responseHashtag.body,
+        sentiments: responseEmotion.body
+      });
+    } catch (err) {
+      console.log(err)
+    }
   }
 
 
@@ -83,8 +92,8 @@ class HashTag extends Component {
   	const userInteracted = this.state.userInteracted
   	const topMentions = this.state.topMentions
   	const topHashTags = this.state.topHashTags
-  	const sentiments = []
-  	const activities = []
+  	const sentiments = this.state.sentiments
+  	const activities = this.state.activities
   	
     return (
       <div className="animated fadeIn">

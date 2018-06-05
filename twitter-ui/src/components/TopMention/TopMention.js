@@ -9,7 +9,7 @@ class TopMention extends Component {
   render() {
         var topMentions = this.props.source.map(function(tm){
             return (
-              <div className="row">
+              <div className="row" key={tm.userScreenName}>
                 <div className="col-12 mt-1">
                   <div className="mr-2 float-left">
                       <div className="avatar">
@@ -21,7 +21,7 @@ class TopMention extends Component {
                       {<span className="text-muted"> @{tm.userScreenName}</span>}
                   </div>
                 </div>          
-              </div>);
+              </div>)
             })
       return (
         <div className="card">

@@ -319,8 +319,11 @@ function getActivityTimeSeriesData(hashtag) {
 
 		influx.query(activityTSQuery).then(function(activityData) {
 			_.each(activityData, function(res) {
-				activityTSData[res.activityType].push(res)
-			})
+				if(res.activityType == "quote" || res.activityType == "tweet" ||res.activityType == "retweet"
+				||res.activityType == "favorite" ){
+					activityTSData[res.activityType].push(res)
+				}
+			});
 			return resolve(activityTSData);
 		}).catch(function(err) {
 			console.log(err)
