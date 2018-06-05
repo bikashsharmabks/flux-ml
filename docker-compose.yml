@@ -117,6 +117,9 @@ services:
     command: npm start
     ports:
       - "5001:5001"
+    environment:
+      KAFKA_HOST: kafka:9092
+      INFLUX_HOST: influxdb:8086
     volumes:
       - ./twitter-api:/app
       - ./data/loki:/data
