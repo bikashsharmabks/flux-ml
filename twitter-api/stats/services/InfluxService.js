@@ -221,21 +221,23 @@ function getTopUserMention(hashtag) {
 
 				if (userDataToFetch.toString() != undefined) {
 					Twitter.getUserInfoByScreenName(userDataToFetch.toString()).then(function(usrData) {
+						
 						_.each(usrData, function(urData) {
 							userData[urData.screen_name] = {
 								verified: urData.verified,
 								profileUrl: urData.profile_image_url
 							}
-						})
+						});
 						_.each(topMentions, function(tm) {
 							if (userData[tm.userScreenName]) {
 								tm.verified = userData[tm.userScreenName].verified;
 								tm.profileUrl = userData[tm.userScreenName].profileUrl;
 							}
-						})
+						});
 
 						return resolve(topMentions);
 					}).catch(function(err) {
+						console.log(err)
 						return resolve(topMentions);
 					});
 				}
