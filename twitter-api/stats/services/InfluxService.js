@@ -218,29 +218,27 @@ function getTopUserMention(hashtag) {
 						"userScreenName": res.userScreenName
 					})
 				});
+				console.log(userData, userDataToFetch)
 
-				if (userDataToFetch.toString() != undefined) {
-					Twitter.getUserInfoByScreenName(userDataToFetch.toString()).then(function(usrData) {
-						
-						_.each(usrData, function(urData) {
-							userData[urData.screen_name] = {
-								verified: urData.verified,
-								profileUrl: urData.profile_image_url
-							}
-						});
-						_.each(topMentions, function(tm) {
-							if (userData[tm.userScreenName]) {
-								tm.verified = userData[tm.userScreenName].verified;
-								tm.profileUrl = userData[tm.userScreenName].profileUrl;
-							}
-						});
+				Twitter.getUserInfoByScreenName(userDataToFetch.toString()).then(function(usrData) {
+					console.log("No of user info fetched from twitter- ",usrData.length)
+					_.each(usrData, function(urData) {
+						userData[urData.screen_name] = {
+							verified: urData.verified,
+							profileUrl: urData.profile_image_url
+						}
+					})
+					_.each(topMentions, function(tm) {
+						if (userData[tm.userScreenName]) {
+							tm.verified = userData[tm.userScreenName].verified;
+							tm.profileUrl = userData[tm.userScreenName].profileUrl;
+						}
+					})
 
-						return resolve(topMentions);
-					}).catch(function(err) {
-						console.log(err)
-						return resolve(topMentions);
-					});
-				}
+					return resolve(topMentions);
+				}).catch(function(err) {
+					return resolve(topMentions);
+				});
 			}
 		}).catch(function(err) {
 			console.log(err)
@@ -321,8 +319,8 @@ function getActivityTimeSeriesData(hashtag) {
 
 		influx.query(activityTSQuery).then(function(activityData) {
 			_.each(activityData, function(res) {
-				if(res.activityType == "quote" || res.activityType == "tweet" ||res.activityType == "retweet"
-				||res.activityType == "favorite" ){
+				if (res.activityType == "quote" || res.activityType == "tweet" || res.activityType == "retweet" ||
+					res.activityType == "favorite") {
 					activityTSData[res.activityType].push(res)
 				}
 			});

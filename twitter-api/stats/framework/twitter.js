@@ -13,16 +13,21 @@ var Twitter = module.exports = {
 
 function getUserInfoByScreenName(screenNamesCommaSeparated) {
 	return new Promise(function(resolve, reject) {
-		var params = {
-			screen_name: screenNamesCommaSeparated
-		};
+		if (!screenNamesCommaSeparated) {
+			return resolve([]);
+		} else {
+			var params = {
+				screen_name: screenNamesCommaSeparated
+			};
 
-		client.get('users/lookup', params, function(error, users, response) {
-			if (error)
-				return reject(error);
-			else
-				return resolve(users);
-		});
+			client.get('users/lookup', params, function(error, users, response) {
+				if (error)
+					return reject(error);
+				else
+					return resolve(users);
+			});
+		}
+
 	})
 
 }
