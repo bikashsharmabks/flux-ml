@@ -30,7 +30,7 @@ class HashTag extends Component {
       this.getCount()
       this.getActivities()
       this.top()
-    }, 2000);
+    }, 5000);
   }
 
   componentWillUnmount() {

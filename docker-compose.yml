@@ -112,25 +112,20 @@ services:
 
   twitter-api:
     container_name: twitter-api
-    image: node:8
+    build: ./twitter-api
     hostname: twitter-api
-    command: node /app/stats/server.js
+    command: npm start
     ports:
       - "5001:5001"
+    environment:
+      KAFKA_HOST: kafka:9092
+      INFLUX_HOST: influxdb:8086
     volumes:
       - ./twitter-api:/app
       - ./data/loki:/data
+      - /app/stats/node_modules
     depends_on:
       - twitter-stream
-
-  twitter-ui:
-    container_name: twitter-ui
-    image: node:8
-    hostname: twitter-ui
-    ports: 
-      - "5002:5002"
-    volumes:
-      - ./twitter-ui:/app
 
   twitter-proxy:
     container_name: twitter-proxy
