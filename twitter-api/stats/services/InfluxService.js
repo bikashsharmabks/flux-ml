@@ -20,6 +20,499 @@ var InfluxService = module.exports = {
 }
 
 
+function getMinTime(data) {
+
+	if (data.length > 1)
+		return data.reduce((min, d) => d.time < min ? d.time : min, data[0].time);
+	else if (data.length == 1)
+		return data[0].time;
+	else if (data.length == 0)
+		return null
+
+}
+
+function getMaxTime(data) {
+	if (data.length > 1)
+		return data.reduce((max, d) => d.time > max ? d.time : max, data[0].time);
+	else if (data.length == 1)
+		return data[0].time;
+	else if (data.length == 0)
+		return null
+}
+
+function getFormattedLabelData(label) {
+	var formattedLabel = [];
+	for (var i = 0; i < label.length; i++) {
+		formattedLabel.push(label[i].format("HH:mm"))
+	}
+	return formattedLabel;
+}
+
+// var data = {
+// 	"quote": [{
+// 		"time": "2018-06-05T10:59:00.000Z",
+// 		"count": null,
+// 		"activityType": "tweet"
+// 	}],
+// 	"favorite": [],
+// 	"tweet": [],
+// 	"retweet": [{
+// 		"time": "2018-06-05T10:10:00.000Z",
+// 		"count": 1,
+// 		"activityType": "retweet"
+// 	}, {
+// 		"time": "2018-06-05T10:11:00.000Z",
+// 		"count": 2,
+// 		"activityType": "retweet"
+// 	}, {
+// 		"time": "2018-06-05T10:12:00.000Z",
+// 		"count": 4,
+// 		"activityType": "retweet"
+// 	}, {
+// 		"time": "2018-06-05T10:13:00.000Z",
+// 		"count": null,
+// 		"activityType": "retweet"
+// 	}, {
+// 		"time": "2018-06-05T10:14:00.000Z",
+// 		"count": 3,
+// 		"activityType": "retweet"
+// 	}, {
+// 		"time": "2018-06-05T10:15:00.000Z",
+// 		"count": 4,
+// 		"activityType": "retweet"
+// 	}, {
+// 		"time": "2018-06-05T10:16:00.000Z",
+// 		"count": 4,
+// 		"activityType": "retweet"
+// 	}, {
+// 		"time": "2018-06-05T10:17:00.000Z",
+// 		"count": 5,
+// 		"activityType": "retweet"
+// 	}, {
+// 		"time": "2018-06-05T10:18:00.000Z",
+// 		"count": 5,
+// 		"activityType": "retweet"
+// 	}, {
+// 		"time": "2018-06-05T10:19:00.000Z",
+// 		"count": 2,
+// 		"activityType": "retweet"
+// 	}, {
+// 		"time": "2018-06-05T10:20:00.000Z",
+// 		"count": null,
+// 		"activityType": "retweet"
+// 	}, {
+// 		"time": "2018-06-05T10:21:00.000Z",
+// 		"count": null,
+// 		"activityType": "retweet"
+// 	}, {
+// 		"time": "2018-06-05T10:22:00.000Z",
+// 		"count": null,
+// 		"activityType": "retweet"
+// 	}, {
+// 		"time": "2018-06-05T10:23:00.000Z",
+// 		"count": null,
+// 		"activityType": "retweet"
+// 	}, {
+// 		"time": "2018-06-05T10:24:00.000Z",
+// 		"count": null,
+// 		"activityType": "retweet"
+// 	}, {
+// 		"time": "2018-06-05T10:25:00.000Z",
+// 		"count": null,
+// 		"activityType": "retweet"
+// 	}, {
+// 		"time": "2018-06-05T10:26:00.000Z",
+// 		"count": null,
+// 		"activityType": "retweet"
+// 	}, {
+// 		"time": "2018-06-05T10:27:00.000Z",
+// 		"count": null,
+// 		"activityType": "retweet"
+// 	}, {
+// 		"time": "2018-06-05T10:28:00.000Z",
+// 		"count": null,
+// 		"activityType": "retweet"
+// 	}, {
+// 		"time": "2018-06-05T10:29:00.000Z",
+// 		"count": null,
+// 		"activityType": "retweet"
+// 	}, {
+// 		"time": "2018-06-05T10:30:00.000Z",
+// 		"count": null,
+// 		"activityType": "retweet"
+// 	}, {
+// 		"time": "2018-06-05T10:31:00.000Z",
+// 		"count": null,
+// 		"activityType": "retweet"
+// 	}, {
+// 		"time": "2018-06-05T10:32:00.000Z",
+// 		"count": null,
+// 		"activityType": "retweet"
+// 	}, {
+// 		"time": "2018-06-05T10:33:00.000Z",
+// 		"count": null,
+// 		"activityType": "retweet"
+// 	}, {
+// 		"time": "2018-06-05T10:34:00.000Z",
+// 		"count": null,
+// 		"activityType": "retweet"
+// 	}, {
+// 		"time": "2018-06-05T10:35:00.000Z",
+// 		"count": null,
+// 		"activityType": "retweet"
+// 	}, {
+// 		"time": "2018-06-05T10:36:00.000Z",
+// 		"count": null,
+// 		"activityType": "retweet"
+// 	}, {
+// 		"time": "2018-06-05T10:37:00.000Z",
+// 		"count": null,
+// 		"activityType": "retweet"
+// 	}, {
+// 		"time": "2018-06-05T10:38:00.000Z",
+// 		"count": null,
+// 		"activityType": "retweet"
+// 	}, {
+// 		"time": "2018-06-05T10:39:00.000Z",
+// 		"count": null,
+// 		"activityType": "retweet"
+// 	}, {
+// 		"time": "2018-06-05T10:40:00.000Z",
+// 		"count": null,
+// 		"activityType": "retweet"
+// 	}, {
+// 		"time": "2018-06-05T10:41:00.000Z",
+// 		"count": null,
+// 		"activityType": "retweet"
+// 	}, {
+// 		"time": "2018-06-05T10:42:00.000Z",
+// 		"count": null,
+// 		"activityType": "retweet"
+// 	}, {
+// 		"time": "2018-06-05T10:43:00.000Z",
+// 		"count": null,
+// 		"activityType": "retweet"
+// 	}, {
+// 		"time": "2018-06-05T10:44:00.000Z",
+// 		"count": null,
+// 		"activityType": "retweet"
+// 	}, {
+// 		"time": "2018-06-05T10:45:00.000Z",
+// 		"count": null,
+// 		"activityType": "retweet"
+// 	}, {
+// 		"time": "2018-06-05T10:46:00.000Z",
+// 		"count": null,
+// 		"activityType": "retweet"
+// 	}, {
+// 		"time": "2018-06-05T10:47:00.000Z",
+// 		"count": null,
+// 		"activityType": "retweet"
+// 	}, {
+// 		"time": "2018-06-05T10:48:00.000Z",
+// 		"count": null,
+// 		"activityType": "retweet"
+// 	}, {
+// 		"time": "2018-06-05T10:49:00.000Z",
+// 		"count": null,
+// 		"activityType": "retweet"
+// 	}, {
+// 		"time": "2018-06-05T10:50:00.000Z",
+// 		"count": null,
+// 		"activityType": "retweet"
+// 	}, {
+// 		"time": "2018-06-05T10:51:00.000Z",
+// 		"count": null,
+// 		"activityType": "retweet"
+// 	}, {
+// 		"time": "2018-06-05T10:52:00.000Z",
+// 		"count": null,
+// 		"activityType": "retweet"
+// 	}, {
+// 		"time": "2018-06-05T10:53:00.000Z",
+// 		"count": null,
+// 		"activityType": "retweet"
+// 	}, {
+// 		"time": "2018-06-05T10:54:00.000Z",
+// 		"count": null,
+// 		"activityType": "retweet"
+// 	}, {
+// 		"time": "2018-06-05T10:55:00.000Z",
+// 		"count": null,
+// 		"activityType": "retweet"
+// 	}, {
+// 		"time": "2018-06-05T10:56:00.000Z",
+// 		"count": null,
+// 		"activityType": "retweet"
+// 	}, {
+// 		"time": "2018-06-05T10:57:00.000Z",
+// 		"count": null,
+// 		"activityType": "retweet"
+// 	}, {
+// 		"time": "2018-06-05T10:58:00.000Z",
+// 		"count": null,
+// 		"activityType": "retweet"
+// 	}, {
+// 		"time": "2018-06-05T10:59:00.000Z",
+// 		"count": null,
+// 		"activityType": "retweet"
+// 	}, {
+// 		"time": "2018-06-05T11:00:00.000Z",
+// 		"count": null,
+// 		"activityType": "retweet"
+// 	}, {
+// 		"time": "2018-06-05T11:01:00.000Z",
+// 		"count": null,
+// 		"activityType": "retweet"
+// 	}, {
+// 		"time": "2018-06-05T11:02:00.000Z",
+// 		"count": null,
+// 		"activityType": "retweet"
+// 	}, {
+// 		"time": "2018-06-05T11:03:00.000Z",
+// 		"count": null,
+// 		"activityType": "retweet"
+// 	}, {
+// 		"time": "2018-06-05T11:04:00.000Z",
+// 		"count": null,
+// 		"activityType": "retweet"
+// 	}, {
+// 		"time": "2018-06-05T11:05:00.000Z",
+// 		"count": null,
+// 		"activityType": "retweet"
+// 	}, {
+// 		"time": "2018-06-05T11:06:00.000Z",
+// 		"count": null,
+// 		"activityType": "retweet"
+// 	}, {
+// 		"time": "2018-06-05T11:07:00.000Z",
+// 		"count": null,
+// 		"activityType": "retweet"
+// 	}, {
+// 		"time": "2018-06-05T11:08:00.000Z",
+// 		"count": null,
+// 		"activityType": "retweet"
+// 	}, {
+// 		"time": "2018-06-05T11:09:00.000Z",
+// 		"count": null,
+// 		"activityType": "retweet"
+// 	}, {
+// 		"time": "2018-06-05T11:10:00.000Z",
+// 		"count": null,
+// 		"activityType": "retweet"
+// 	}, {
+// 		"time": "2018-06-05T11:11:00.000Z",
+// 		"count": null,
+// 		"activityType": "retweet"
+// 	}, {
+// 		"time": "2018-06-05T11:12:00.000Z",
+// 		"count": null,
+// 		"activityType": "retweet"
+// 	}, {
+// 		"time": "2018-06-05T11:13:00.000Z",
+// 		"count": null,
+// 		"activityType": "retweet"
+// 	}, {
+// 		"time": "2018-06-05T11:14:00.000Z",
+// 		"count": null,
+// 		"activityType": "retweet"
+// 	}, {
+// 		"time": "2018-06-05T11:15:00.000Z",
+// 		"count": null,
+// 		"activityType": "retweet"
+// 	}, {
+// 		"time": "2018-06-05T11:16:00.000Z",
+// 		"count": null,
+// 		"activityType": "retweet"
+// 	}, {
+// 		"time": "2018-06-05T11:17:00.000Z",
+// 		"count": null,
+// 		"activityType": "retweet"
+// 	}, {
+// 		"time": "2018-06-05T11:18:00.000Z",
+// 		"count": null,
+// 		"activityType": "retweet"
+// 	}]
+// }
+
+function formatActivityData(data) {
+
+	var tweets = data["tweet"],
+		retweets = data["retweet"],
+		quotes = data["quote"],
+		favorite = data["favorite"];
+
+	var minTweetTime = getMinTime(tweets);
+	var totalTime = []
+	if (minTweetTime) {
+		totalTime.push({
+			time: minTweetTime
+		})
+		minTweetTime = moment(minTweetTime).utc();
+	}
+	console.log(minTweetTime)
+
+	var minRetweetTime = getMinTime(retweets)
+	if (minRetweetTime) {
+		totalTime.push({
+			time: minRetweetTime
+		})
+		minRetweetTime = moment(minRetweetTime).utc();
+	}
+	console.log(minRetweetTime)
+
+	var minQuoteTime = getMinTime(quotes);
+	if (minQuoteTime) {
+		totalTime.push({
+			time: minQuoteTime
+		})
+		minQuoteTime = moment(minQuoteTime).utc();
+	}
+	console.log(minQuoteTime)
+
+	var minFavoriteTime = getMinTime(favorite);
+	if (minFavoriteTime) {
+		totalTime.push({
+			time: minFavoriteTime
+		})
+		minFavoriteTime = moment(minFavoriteTime).utc();
+	}
+	console.log(minFavoriteTime)
+
+
+	var maxTweetTime = getMaxTime(tweets);
+	if (maxTweetTime) {
+		totalTime.push({
+			time: maxTweetTime
+		})
+		maxTweetTime = moment(maxTweetTime).utc();
+	}
+
+	var maxRetweetTime = getMaxTime(retweets)
+	if (maxRetweetTime) {
+		totalTime.push({
+			time: maxRetweetTime
+		})
+		maxRetweetTime = moment(maxRetweetTime).utc();
+	}
+	var maxQuoteTime = getMaxTime(quotes);
+	if (maxQuoteTime) {
+		totalTime.push({
+			time: maxQuoteTime
+		})
+		maxQuoteTime = moment(maxQuoteTime).utc();
+	}
+
+	var maxFavoriteTime = getMaxTime(favorite);
+	if (maxFavoriteTime) {
+		totalTime.push({
+			time: maxFavoriteTime
+		})
+		maxFavoriteTime = moment(maxFavoriteTime).utc();
+	}
+
+	// console.log(minTweetTime, minRetweetTime, minQuoteTime, minFavoriteTime)
+	var minTime = moment(getMinTime(totalTime)).utc();
+	var maxTime = moment(getMaxTime(totalTime)).utc();
+
+	// console.log(minTime, "---", maxTime)
+	var label = [];
+	while (minTime.isSameOrBefore(maxTime, 'minutes')) {
+		label.push(moment(new Date(_.cloneDeep(minTime))).utc());
+		minTime.add(1, "m");
+	}
+	var labelCount = label.length;
+	var tweetData = [];
+
+
+	var i = 0;
+	var tweetData = []
+	if (tweets.length > 0) {
+		while (label[i].isBefore(minTweetTime, 'minutes')) {
+			tweetData.push(0);
+			i++;
+		}
+
+		_.each(tweets, function(td) {
+			var total = td.count + (tweetData.length - 1 > 0 ? tweetData[tweetData.length - 1] : 0)
+			tweetData.push(total);
+			i++
+		})
+
+		while (i <= label.length - 1) {
+			tweetData.push(tweetData.length - 1 > 0 ? tweetData[tweetData.length - 1] : 0);
+			i++;
+		}
+	}
+
+	var j = 0;
+	var retweetData = []
+	if (retweets.length > 0) {
+		while (label[j].isBefore(minRetweetTime, 'minutes')) {
+			retweetData.push(0);
+			j++;
+		}
+		_.each(retweets, function(td) {
+			var total = td.count + (retweetData.length - 1 > 0 ? retweetData[retweetData.length - 1] : 0)
+			retweetData.push(total);
+			j++
+		})
+		while (j <= label.length - 1) {
+			retweetData.push(retweetData.length - 1 > 0 ? retweetData[retweetData.length - 1] : 0);
+			j++;
+		}
+	}
+
+
+	var k = 0;
+	var quotesData = []
+	if (quotes.length > 0) {
+		while (label[k].isBefore(minQuoteTime, 'minutes')) {
+			quotesData.push(0);
+			k++;
+		}
+		_.each(quotesData, function(td) {
+			var total = td.count + (quotesData.length - 1 > 0 ? quotesData[quotesData.length - 1] : 0)
+			quotesData.push(total);
+			k++
+		})
+		while (k <= label.length - 1) {
+			quotesData.push(quotesData.length - 1 > 0 ? quotesData[quotesData.length - 1] : 0);
+			k++;
+		}
+	}
+
+
+
+	var m = 0;
+	var favoriteData = []
+	if (favorite.length > 0) {
+		while (label[m].isBefore(minFavoriteTime, 'minutes')) {
+			favoriteData.push(0);
+			m++;
+		}
+		_.each(favoriteData, function(td) {
+			var total = td.count + (favoriteData.length - 1 > 0 ? favoriteData[favoriteData.length - 1] : 0)
+			favoriteData.push(total);
+			m++
+		})
+		while (m <= label.length - 1) {
+			favoriteData.push(favoriteData.length - 1 > 0 ? favoriteData[favoriteData.length - 1] : 0);
+			m++;
+		}
+	}
+
+	console.log(label.length, tweetData.length, retweetData.length, favoriteData.length, quotesData.length)
+
+	return {
+		labels: getFormattedLabelData(label),
+		tweetData: tweetData,
+		retweetData: retweetData,
+		quotesData: quotesData,
+		favoriteData: favoriteData
+	}
+}
+
 
 function writeActivityMeasurement(tweetData) {
 	return new Promise(function(resolve, reject) {
@@ -222,7 +715,7 @@ function getTopUserMention(hashtag) {
 				console.log(userData, userDataToFetch)
 
 				Twitter.getUserInfoByScreenName(userDataToFetch.toString()).then(function(usrData) {
-					console.log("No of user info fetched from twitter- ",usrData.length)
+					console.log("No of user info fetched from twitter- ", usrData.length)
 					_.each(usrData, function(urData) {
 						userData[urData.screen_name] = {
 							verified: urData.verified,
@@ -326,7 +819,7 @@ function getActivityTimeSeriesData(hashtag) {
 					activityTSData[res.activityType].push(res)
 				}
 			});
-			return resolve(activityTSData);
+			return resolve(formatActivityData(activityTSData));
 		}).catch(function(err) {
 			console.log(err)
 			return reject(new Error("Something went wrong."));
