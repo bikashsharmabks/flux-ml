@@ -19,8 +19,8 @@ class HashTag extends Component {
     	topHashTags: [],
     	sentiments: [],
     	activities: [],
-      hashtag: "bypolls"
-      //hashtag: props.routeParams.hashTag
+      //hashtag: "WorldEnvironmentDay"
+      hashtag: props.routeParams.hashTag
     };
   }
 
