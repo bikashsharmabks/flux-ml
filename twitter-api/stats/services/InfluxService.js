@@ -3,6 +3,7 @@ var path = require('path'),
 	Promise = require('bluebird'),
 	_ = require('lodash'),
 	influx = require('./../framework/influx').influxClient,
+	Twitter = require('./../framework/twitter'),
 	moment = require('moment');
 
 var DB_NAME = "tweet_timeseries";
@@ -189,6 +190,7 @@ function getStatsByHashtag(hashtag) {
 	})
 }
 
+var userData = {};
 
 function getTopUserMention(hashtag) {
 
@@ -200,16 +202,44 @@ function getTopUserMention(hashtag) {
 		  from  (select sum(userCount) as userCount from user_mention  where hashtag = '${hashtag}'
 		 GROUP by userScreenName)`
 
-
-
 		influx.query(topMentionQuery).then(function(topMentionRes) {
-			_.each(topMentionRes, function(res) {
-				topMentions.push({
-					"count": res.count,
-					"userScreenName": res.userScreenName
-				})
-			})
-			return resolve(topMentions);
+			if (topMentionRes.length == 0) {
+				return resolve(topMentions)
+			} else {
+				var userDataToFetch = []
+				_.each(topMentionRes, function(res) {
+
+					if (!userData[res.userScreenName]) {
+						userDataToFetch.push(res.userScreenName)
+					}
+
+					topMentions.push({
+						"count": res.count,
+						"userScreenName": res.userScreenName
+					})
+				});
+
+				if (userDataToFetch.toString() != undefined) {
+					Twitter.getUserInfoByScreenName(userDataToFetch.toString()).then(function(usrData) {
+						_.each(usrData, function(urData) {
+							userData[urData.screen_name] = {
+								verified: urData.verified,
+								profileUrl: urData.profile_image_url
+							}
+						})
+						_.each(topMentions, function(tm) {
+							if (userData[tm.userScreenName]) {
+								tm.verified = userData[tm.userScreenName].verified;
+								tm.profileUrl = userData[tm.userScreenName].profileUrl;
+							}
+						})
+
+						return resolve(topMentions);
+					}).catch(function(err) {
+						return resolve(topMentions);
+					});
+				}
+			}
 		}).catch(function(err) {
 			console.log(err)
 			return reject(new Error("Something went wrong."));

@@ -16,7 +16,8 @@
     "moment": "^2.22.1",
     "redis": "^2.6.5",
     "request": "^2.87.0",
-    "restify": "^7.2.0"
+    "restify": "^7.2.0",
+    "twitter": "^1.7.1"
   },
   "author": "",
   "license": "ISC"
