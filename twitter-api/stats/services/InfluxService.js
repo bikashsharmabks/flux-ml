@@ -218,7 +218,7 @@ function getTopUserMention(hashtag) {
 						"userScreenName": res.userScreenName
 					})
 				});
-				console.log(userData, userDataToFetch)
+				//console.log(userData, userDataToFetch)
 
 				Twitter.getUserInfoByScreenName(userDataToFetch.toString()).then(function(usrData) {
 					console.log("No of user info fetched from twitter- ",usrData.length)
