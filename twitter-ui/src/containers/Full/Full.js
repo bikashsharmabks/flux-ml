@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import Header from '../../components/Header/';
-import Sidebar from '../../components/Sidebar/';
-import Aside from '../../components/Aside/';
+//import Sidebar from '../../components/Sidebar/';
+//import Aside from '../../components/Aside/';
 import Footer from '../../components/Footer/';
 
-import Breadcrumbs from 'react-breadcrumbs';
+//import Breadcrumbs from 'react-breadcrumbs';
 
 class Full extends Component {
   render() {

@@ -2,10 +2,6 @@ import React, { Component } from 'react';
 
 class TopMention extends Component {
 
-  constructor (props) {
-    super(props);
-  }
-  
   render() {
         var topMentions = this.props.source.map(function(tm){
             return (
@@ -13,7 +9,7 @@ class TopMention extends Component {
                 <div className="col-12 mt-1">
                   <div className="mr-2 float-left">
                       <div className="avatar">
-                          <img src="https://pbs.twimg.com/profile_images/873177304259854337/WBjmwo78_400x400.jpg" className="img-avatar" alt="admin@bootstrapmaster.com"/>
+                          <img src={tm.profileUrl} className="img-avatar" alt="admin@bootstrapmaster.com"/>
                       </div>
                   </div>
                   <div>

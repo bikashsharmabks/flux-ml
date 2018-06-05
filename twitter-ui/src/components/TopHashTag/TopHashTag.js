@@ -1,11 +1,7 @@
 import React, { Component } from 'react';
 
 class TopHashTag extends Component {
-
-  constructor (props) {
-    super(props);
-  }
-
+  
   render() {
      var topHashtags = this.props.source.map(function(th){
             return (

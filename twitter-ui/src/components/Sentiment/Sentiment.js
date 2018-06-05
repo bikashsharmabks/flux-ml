@@ -39,13 +39,13 @@ class Sentiment extends Component {
         neutralCount =0;
 
     for(var i = 0 ; i < source.length;i++){
-      if(source[i].sentiment == 'neutral'){
+      if(source[i].sentiment === 'neutral'){
         neutralCount = source[i].count
       }
-      else if(source[i].sentiment == 'positive'){
+      else if(source[i].sentiment === 'positive'){
         positiveCount = source[i].count
       }
-      else if(source[i].sentiment == 'negative'){
+      else if(source[i].sentiment === 'negative'){
         negativeCount = source[i].count
       }
     }

@@ -31,7 +31,6 @@ class HashTags extends Component {
   render() {
 
   	var allHashtags = this.state.hashtags.map(function(ah){
-  		console.log("ah", ah.hashtag);
             return (
                  <Link to={'/hashTags/' + ah.hashtag} key={ah.hashtag} className="card hashtags">
 					<div className="card-body p-1">

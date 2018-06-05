@@ -26,15 +26,18 @@ class HashTag extends Component {
   }
 
   componentDidMount() {
-    this.interval = setInterval(() => {
+    this.interval1 = setInterval(() => {
       this.getCount()
-      this.getActivities()
       this.top()
-    }, 5000);
+    }, 2000);
+    this.interval2 = setInterval(() => {
+      this.getActivities()
+    }, 3000);
   }
 
   componentWillUnmount() {
-    clearInterval(this.interval);
+    clearInterval(this.interval1);
+    clearInterval(this.interval2);
   }
 
   getCount() {
@@ -61,7 +64,6 @@ class HashTag extends Component {
         if (error) {
           console.log("error", error)
         } else {
-          //console.log("activity", response.body)
           this.setState({
             activities: response.body
           });
@@ -74,6 +76,7 @@ class HashTag extends Component {
       var responseMention = await superagent.get('/api/hashtags/' + this.state.hashtag + '/top-user-mentions');
       var responseHashtag = await superagent.get('/api/hashtags/' + this.state.hashtag + '/top-related-hashtags');
       var responseEmotion = await superagent.get('/api/hashtags/' + this.state.hashtag + '/emotion-count');
+
       this.setState({
         topMentions: responseMention.body,
         topHashTags: responseHashtag.body,

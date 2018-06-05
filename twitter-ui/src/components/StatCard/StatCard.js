@@ -2,13 +2,7 @@ import React, { Component } from 'react';
 
 class StatCard extends Component {
 
-  constructor (props) {
-    super(props);
-  }
-
   render() {
-    
-
     return (
       <div className="card">
           <div className="card-block">
