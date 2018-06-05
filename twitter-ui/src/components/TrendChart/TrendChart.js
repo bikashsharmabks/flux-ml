@@ -1,181 +1,13 @@
 import React, { Component } from 'react';
-import { Bar, Line } from 'react-chartjs-2';
-import { Dropdown, DropdownMenu, DropdownItem, Progress } from 'reactstrap';
+import { Line } from 'react-chartjs-2';
+import { Progress } from 'reactstrap';
+import moment from 'moment';
+import _ from 'lodash';
 
-const brandPrimary =  '#20a8d8';
+//const brandPrimary =  '#20a8d8';
 const brandSuccess =  '#4dbd74';
 const brandInfo =     '#63c2de';
 const brandDanger =   '#f86c6b';
-
-// Card Chart 1
-const cardChartData1 = {
-  labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
-  datasets: [
-    {
-      label: 'My First dataset',
-      backgroundColor: brandPrimary,
-      borderColor: 'rgba(255,255,255,.55)',
-      data: [65, 59, 84, 84, 51, 55, 40]
-    }
-  ],
-};
-
-const cardChartOpts1 = {
-  maintainAspectRatio: false,
-  legend: {
-    display: false
-  },
-  scales: {
-    xAxes: [{
-      gridLines: {
-        color: 'transparent',
-        zeroLineColor: 'transparent'
-      },
-      ticks: {
-        fontSize: 2,
-        fontColor: 'transparent',
-      }
-
-    }],
-    yAxes: [{
-      display: false,
-      ticks: {
-        display: false,
-        min: Math.min.apply(Math, cardChartData1.datasets[0].data) - 5,
-        max: Math.max.apply(Math, cardChartData1.datasets[0].data) + 5,
-      }
-    }],
-  },
-  elements: {
-    line: {
-      borderWidth: 1
-    },
-    point: {
-      radius: 4,
-      hitRadius: 10,
-      hoverRadius: 4,
-    },
-  }
-}
-
-// Card Chart 2
-const cardChartData2 = {
-  labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
-  datasets: [
-    {
-      label: 'My First dataset',
-      backgroundColor: brandInfo,
-      borderColor: 'rgba(255,255,255,.55)',
-      data: [1, 18, 9, 17, 34, 22, 11]
-    }
-  ],
-};
-
-const cardChartOpts2 = {
-  maintainAspectRatio: false,
-  legend: {
-    display: false
-  },
-  scales: {
-    xAxes: [{
-      gridLines: {
-        color: 'transparent',
-        zeroLineColor: 'transparent'
-      },
-      ticks: {
-        fontSize: 2,
-        fontColor: 'transparent',
-      }
-
-    }],
-    yAxes: [{
-      display: false,
-      ticks: {
-        display: false,
-        min: Math.min.apply(Math, cardChartData2.datasets[0].data) - 5,
-        max: Math.max.apply(Math, cardChartData2.datasets[0].data) + 5,
-      }
-    }],
-  },
-  elements: {
-    line: {
-      tension: 0.00001,
-      borderWidth: 1
-    },
-    point: {
-      radius: 4,
-      hitRadius: 10,
-      hoverRadius: 4,
-    },
-  }
-}
-
-// Card Chart 3
-const cardChartData3 = {
-  labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
-  datasets: [
-    {
-      label: 'My First dataset',
-      backgroundColor: 'rgba(255,255,255,.2)',
-      borderColor: 'rgba(255,255,255,.55)',
-      data: [78, 81, 80, 45, 34, 12, 40]
-    }
-  ],
-};
-
-const cardChartOpts3 = {
-  maintainAspectRatio: false,
-  legend: {
-    display: false
-  },
-  scales: {
-    xAxes: [{
-      display: false
-    }],
-    yAxes: [{
-      display: false
-    }],
-  },
-  elements: {
-    line: {
-      borderWidth: 2
-    },
-    point: {
-      radius: 0,
-      hitRadius: 10,
-      hoverRadius: 4,
-    },
-  }
-}
-
-// Card Chart 4
-const cardChartData4 = {
-  labels: ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
-  datasets: [
-    {
-      label: 'My First dataset',
-      backgroundColor: 'rgba(255,255,255,.3)',
-      borderColor: 'transparent',
-      data: [78, 81, 80, 45, 34, 12, 40, 75, 34, 89, 32, 68, 54, 72, 18, 98]
-    }
-  ],
-};
-
-const cardChartOpts4 = {
-  maintainAspectRatio: false,
-  legend: {
-    display: false
-  },
-  scales: {
-    xAxes: [{
-      display: false,
-      barPercentage: 0.6,
-    }],
-    yAxes: [{
-      display: false,
-    }]
-  }
-}
 
 // Main Chart
 
@@ -203,14 +35,14 @@ var data3 = [];
 for (var i = 0; i <= elements; i++) {
   data1.push(random(50,200));
   data2.push(random(80,100));
-  data3.push(65);
+  data3.push(65, 100);
 }
-
+//'M', 'T', 'W', 'T', 'F', 'S', 'S', 'M', 'T', 'W', 'T', 'F', 'S', 'S', 'M', 'T', 'W', 'T', 'F', 'S', 'S', 'M', 'T', 'W', 'T', 'F', 'S', 'S'
 const mainChart = {
-  labels: ['M', 'T', 'W', 'T', 'F', 'S', 'S', 'M', 'T', 'W', 'T', 'F', 'S', 'S', 'M', 'T', 'W', 'T', 'F', 'S', 'S', 'M', 'T', 'W', 'T', 'F', 'S', 'S'],
+  labels: [],
   datasets: [
     {
-      label: 'My First dataset',
+      label: 'Tweets',
       backgroundColor: convertHex(brandInfo,10),
       borderColor: brandInfo,
       pointHoverBackgroundColor: '#fff',
@@ -218,7 +50,7 @@ const mainChart = {
       data: data1
     },
     {
-      label: 'My Second dataset',
+      label: 'Retweets',
       backgroundColor: 'transparent',
       borderColor: brandSuccess,
       pointHoverBackgroundColor: '#fff',
@@ -226,7 +58,7 @@ const mainChart = {
       data: data2
     },
     {
-      label: 'My Third dataset',
+      label: 'Quotes',
       backgroundColor: 'transparent',
       borderColor: brandDanger,
       pointHoverBackgroundColor: '#fff',
@@ -267,13 +99,78 @@ const mainChartOpts = {
   }
 }
 
+function getMinTime(data) {
+  return data.reduce((min, d) => d.time < min ? d.time : min, data[0].time);
+}
+
+function getMaxTime(data) {
+  return data.reduce((max, d) => d.time > max ? d.time : max, data[0].time);
+}
+
+function getFormattedLabelData(label){
+  var formattedLabel = [];
+    for(var i=0; i< label.length; i++){
+      formattedLabel.push(label[i].format("HH:mm"))
+    }
+    return formattedLabel;
+  }
+
 class TrendChart extends Component {
 
   constructor (props) {
     super(props);
+    this.state = {
+      mainChart : mainChart
+    }
   }
+  // componentWillReceiveProps() {
+    
+  // }
+  
 
   render() {
+    //console.log("trend-activity", this.props.source)
+    let newState = Object.assign({}, this.state);
+    var source = this.props.source;
+    if (Object.keys(source).length !== 0) {
+      var tweets = source["tweet"],
+      retweets = source["retweet"],
+      quotes = source["quote"];
+      var all = [...tweets, ...retweets, ...quotes]
+      var minTime = getMinTime(all);
+      var maxTime = getMaxTime(all);
+      minTime = moment(minTime).utc();
+      maxTime= moment(maxTime).utc();
+      var label=[];
+      while(minTime.isSameOrBefore(maxTime, 'minutes')){
+        label.push(moment(new Date(_.cloneDeep(minTime))).utc());
+        minTime.add(1, "m");
+      }
+      var labelCount = label.length;
+      var tweetData = []
+      for (var i = 0; i < labelCount; i++) {
+        for (var j = i; j < tweets.length; j++) {
+          console.log(moment(tweets[j].time).utc().toString(), "@@@@", label[i].toString())
+          if (moment(tweets[j].time).utc().isSame(label[i], 'minute')) {
+            console.log(tweets[j])
+            if(tweets[j].count == null){
+              tweets[j].count = 0;
+            }
+            tweetData.push(tweets[j].count + tweetData[tweetData.length - 1]);
+          } else {
+            if (tweetData.length == 0){
+              tweetData.push(0);
+            }
+            else{
+              tweetData.push(tweetData[tweetData.length - 1])
+            }
+            i++;
+          }
+        }
+      }
+      console.log(tweetData)
+    }
+
     return (
       <div className="card">
         <div className="card-block">
@@ -303,13 +200,8 @@ class TrendChart extends Component {
               <strong>240 (20%)</strong>
               <Progress className="progress-xs mt-h" color="info" value="20" />
             </li>
-            <li>
-              <div className="text-muted">Favourite</div>
-              <strong>787 (60%)</strong>
-              <Progress className="progress-xs mt-h" color="warning" value="60" />
-            </li>
             <li className="hidden-sm-down">
-              <div className="text-muted">Quote</div>
+              <div className="text-muted">Quotes</div>
               <strong>221 (30%)</strong>
               <Progress className="progress-xs mt-h" color="danger" value="80" />
             </li>
