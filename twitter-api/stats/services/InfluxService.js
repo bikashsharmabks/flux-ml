@@ -84,7 +84,7 @@ function formatActivityData(data) {
 					tweetData.push(td.count);
 				}
 				else {
-					tweetData.push(null)
+					tweetData.push(0)
 				}
 			});
 		});
@@ -99,7 +99,7 @@ function formatActivityData(data) {
 					retweetData.push(td.count);
 				}
 				else {
-					retweetData.push(null)
+					retweetData.push(0)
 				}
 			});
 		});
@@ -113,7 +113,7 @@ function formatActivityData(data) {
 					quoteData.push(td.count);
 				}
 				else {
-					quoteData.push(null)
+					quoteData.push(0)
 				}
 			});
 		});
