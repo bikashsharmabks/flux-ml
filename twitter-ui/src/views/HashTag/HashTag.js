@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import superagent from 'superagent';
 
 import StatCard from '../../components/StatCard/StatCard.js';
-import TopMention from '../../components/TopMention/TopMention.js'
+import TopInfluencer from '../../components/TopInfluencer/TopInfluencer.js'
 import TopHashTag from '../../components/TopHashTag/TopHashTag.js'
 import Sentiment from '../../components/Sentiment/Sentiment.js'
 import TrendChart from '../../components/TrendChart/TrendChart.js'
@@ -16,7 +16,7 @@ class HashTag extends Component {
       activityCount: 0,
       verified: 0,
       userInteracted: 0,
-      topMentions: [],
+      topInfluencers: [],
       topHashTags: [],
       sentiments: [],
       activities: [],
@@ -84,7 +84,7 @@ class HashTag extends Component {
       var responseHashtag = await superagent.get('/api/hashtags/' + this.state.hashtag + '/top-related-hashtags');
       var responseEmotion = await superagent.get('/api/hashtags/' + this.state.hashtag + '/emotion-count');
       this.setState({
-        topMentions: responseMention.body,
+        topInfluencers: responseMention.body,
         topHashTags: responseHashtag.body,
         sentiments: responseEmotion.body
       });
@@ -93,13 +93,12 @@ class HashTag extends Component {
     }
   }
 
-
   render() {
 
   	const activityCount = this.state.activityCount
   	const verified = this.state.verified
   	const userInteracted = this.state.userInteracted
-  	const topMentions = this.state.topMentions
+  	const topInfluencers = this.state.topInfluencers
   	const topHashTags = this.state.topHashTags
   	const sentiments = this.state.sentiments
   	const activities = this.state.activities
@@ -150,9 +149,15 @@ class HashTag extends Component {
 			</div>
 
 			<div className="col-lg-4">
+
+        <div className="row">
+          <div className="col-sm-6 col-lg-12">
+            <Sentiment source={sentiments}></Sentiment>
+          </div>
+        </div>
 				<div className="row">
 					<div className="col-sm-6 col-lg-12">
-						<TopMention source={topMentions}></TopMention>
+						<TopInfluencer source={topInfluencers}></TopInfluencer>
 					</div>
 				</div>
 				<div className="row">
@@ -160,11 +165,8 @@ class HashTag extends Component {
 						<TopHashTag source={topHashTags}></TopHashTag>
 					</div>
 				</div>
-				<div className="row">
-					<div className="col-sm-6 col-lg-12">
-						<Sentiment source={sentiments}></Sentiment>
-					</div>
-				</div>
+
+				
 			</div>
 
         </div>

@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 
-class TopMention extends Component {
+class TopInfluencers extends Component {
 
   render() {
-        var topMentions = this.props.source.map(function(tm){
+        var topInfluencers = this.props.source.map(function(tm){
             return (
               <div className="row" key={tm.userScreenName}>
                 <div className="col-12 mt-1">
@@ -25,12 +25,12 @@ class TopMention extends Component {
             <div className="h3 text-muted text-right mb-0 float-right">
                 <div className="text-success">@</div>
             </div>
-            <div className="h4 mb-1">Top Mentions</div> 
-              {topMentions}
+            <div className="h4 mb-1">Top Influencers</div> 
+              {topInfluencers}
             </div>
         </div>
       )
   }
 }
 
-export default TopMention;
+export default TopInfluencers;
