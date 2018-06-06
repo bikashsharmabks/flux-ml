@@ -113,11 +113,25 @@ class TrendChart extends Component {
     var source = this.props.source;
     if (Object.keys(source).length !== 0) {
       if (source.tweetData && source.retweetData && source.quoteData) {
+        var tCount = 0, rCount = 0, qCount = 0;
+        for(var i = 0; i < source.tweetData.length; i++){
+          tCount = tCount+ source.tweetData[i];
+        }
+        for(var i = 0; i < source.retweetData.length; i++){
+          rCount = rCount+ source.retweetData[i];
+        }
+        for(var i = 0; i < source.quoteData.length; i++){
+          qCount = qCount+ source.quoteData[i];
+        }
+        console.log(tCount, rCount, qCount);
         newState.mainChart.labels = source.labels;
         newState.time = source.labels[0];
         newState.mainChart.datasets[0].data = source.tweetData;
         newState.mainChart.datasets[1].data = source.retweetData;
         newState.mainChart.datasets[2].data = source.quoteData;
+        newState.tweetCount = tCount;
+        newState.retweetCount = rCount;
+        newState.quoteCount = qCount;
         this.setState(newState);
       }
     }
@@ -137,7 +151,7 @@ class TrendChart extends Component {
               <i className="icon-graph text-success"></i>
           </div>
               <h4 className="card-title mb-0">Trends</h4>
-              <div className="small text-muted">Since {this.state.time} today</div>
+              <div className="small text-muted">Since {this.state.time}</div>
             </div>
            
           </div>
@@ -150,17 +164,17 @@ class TrendChart extends Component {
 
             <li>
               <div className="text-muted"><font color="brandSuccess"><b>Tweets</b></font></div>
-              <strong>{this.state.tweetCount} (40%)</strong>  
+              <strong>{this.state.tweetCount}</strong>  
             </li>
 
             <li className="hidden-sm-down">
               <div className="text-muted"><font color="brandDanger"><b>Retweets</b></font></div>
-              <strong>240 (20%)</strong> 
+              <strong>{this.state.retweetCount}</strong> 
             </li>
 
             <li className="hidden-sm-down">
               <div className="text-muted"><font color="brandInfo"><b>Quotes</b></font></div>
-              <strong>221 (30%)</strong> 
+              <strong>{this.state.quoteCount}</strong> 
             </li>
 
           </ul>
