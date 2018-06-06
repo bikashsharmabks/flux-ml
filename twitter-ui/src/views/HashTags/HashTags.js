@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router';
 import superagent from 'superagent';
+import moment from 'moment';
 
 class HashTags extends Component {
 	constructor(props) {
@@ -32,10 +33,17 @@ class HashTags extends Component {
 
   	var allHashtags = this.state.hashtags.map(function(ah){
             return (
-                 <Link to={'/hashTags/' + ah.hashtag} key={ah.hashtag} className="card hashtags">
+                 <Link to={'/hashTags/' + ah.hashtag} key={ah.hashtag} style={{minWidth :200}} className="card hashtags">
 					<div className="card-body p-1">
 					    <h4 key={ah.hashtag} className="card-title brand-success">#{ah.hashtag}</h4>
-					      <p className="card-text"><small className="text-muted">Last updated 3 mins ago</small></p>
+					      <p className="card-text">
+					        <small className="text-muted">{moment(ah.startTime).format("MM/DD/YYYY HH:mm")}</small>
+					        {
+					        	ah.endTime ?
+					        	<small className="text-muted"> - {moment(ah.endTime).format("MM/DD/YYYY HH:mm")}</small>
+					        	: <small className="text-muted"> - now</small>
+					        }
+					      </p>
 					</div>
 				</Link>
             )
