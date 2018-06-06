@@ -61,205 +61,60 @@ function formatActivityData(data) {
 	quotes = quotes.filter(d => d.count);
 	favorite = favorite.filter(d => d.count);
 
-	var minTweetTime = getMinTime(tweets);
-	var totalTime = []
-	if (minTweetTime) {
-		totalTime.push({
-			time: minTweetTime
-		})
-		minTweetTime = moment(minTweetTime).utc();
-	}
-	console.log(minTweetTime)
-
-	var minRetweetTime = getMinTime(retweets)
-	if (minRetweetTime) {
-		totalTime.push({
-			time: minRetweetTime
-		})
-		minRetweetTime = moment(minRetweetTime).utc();
-	}
-	console.log(minRetweetTime)
-
-	var minQuoteTime = getMinTime(quotes);
-	if (minQuoteTime) {
-		totalTime.push({
-			time: minQuoteTime
-		})
-		minQuoteTime = moment(minQuoteTime).utc();
-	}
-	console.log(minQuoteTime)
-
-	var minFavoriteTime = getMinTime(favorite);
-	if (minFavoriteTime) {
-		totalTime.push({
-			time: minFavoriteTime
-		})
-		minFavoriteTime = moment(minFavoriteTime).utc();
-	}
-	console.log(minFavoriteTime)
-
-
-	var maxTweetTime = getMaxTime(tweets);
-	if (maxTweetTime) {
-		totalTime.push({
-			time: maxTweetTime
-		})
-		maxTweetTime = moment(maxTweetTime).utc();
-	}
-
-	var maxRetweetTime = getMaxTime(retweets)
-	if (maxRetweetTime) {
-		totalTime.push({
-			time: maxRetweetTime
-		})
-		maxRetweetTime = moment(maxRetweetTime).utc();
-	}
-	var maxQuoteTime = getMaxTime(quotes);
-	if (maxQuoteTime) {
-		totalTime.push({
-			time: maxQuoteTime
-		})
-		maxQuoteTime = moment(maxQuoteTime).utc();
-	}
-
-	var maxFavoriteTime = getMaxTime(favorite);
-	if (maxFavoriteTime) {
-		totalTime.push({
-			time: maxFavoriteTime
-		})
-		maxFavoriteTime = moment(maxFavoriteTime).utc();
-	}
-
-	// console.log(minTweetTime, minRetweetTime, minQuoteTime, minFavoriteTime)
-	var minTime = moment(getMinTime(totalTime)).utc();
-	var maxTime = moment(getMaxTime(totalTime)).utc();
-
-	console.log(minTime, "---", maxTime)
+	var all = _.union(tweets, retweets, quotes);
 	var label = [];
-	while (minTime.isSameOrBefore(maxTime, 'minutes')) {
-		label.push(moment(new Date(_.cloneDeep(minTime))).utc());
-		minTime.add(1, "m");
+	for (var i = 0; i < all.length; i++) {
+		label.push(moment(all[i].time).utc());
 	}
-	var labelCount = label.length;
-	var tweetData = [];
 
+	label = getFormattedLabelData(label);
+	label = _.uniq(label);
+	label = label.sort();
 
-	var i = 0;
-	var tweetData = []
+	var tweetData = [],
+		retweetData = [],
+		quoteData = [];
+
 	if (tweets.length > 0) {
-		_.each(tweets, function(td) {
-			tweetData.push(td.count);
-			// if (td.count == null) {
-			// 	tweetData.push(0);
-			// }else{
-			// 	tweetData.push(td.count);	
-			// }
-			i++;
+		_.each(label, function(l) {
+			_.each(tweets, function(td) {
+				tweetTime = td.time;
+				tweetTime = moment(tweetTime).utc().format("HH:mm");
+				if (l == tweetTime) {
+					tweetData.push(td.count);
+				}
+			});
 		});
-		// while (label[i].isBefore(minTweetTime, 'minutes')) {
-		// 	tweetData.push(0);
-		// 	i++;
-		// }
-
-		// _.each(tweets, function(td) {
-		// 	console.log("td", td)
-		// 	if (td.count != null) {
-		// 		var total = td.count// + (tweetData.length - 1);
-		// 		tweetData.push(total);
-		// 		i++;
-		// 	}
-		// 	//var total = td.count + (tweetData.length - 1 > 0 ? tweetData[tweetData.length - 1] : 0);
-		// 	//tweetData.push(total);
-		// 	//i++
-		// })
-
-		// while (i <= label.length - 1) {
-		// 	tweetData.push(tweetData.length - 1 > 0 ? tweetData[tweetData.length - 1] : 0);
-		// 	i++;
-		// }
 	}
 
-	var j = 0;
-	var retweetData = []
 	if (retweets.length > 0) {
-		_.each(retweets, function(td) {
-			retweetData.push(td.count);
-			// if (td.count == null) {
-			// 	retweets.push(0);
-			// }else{
-			// 	retweets.push(td.count);	
-			// }
-			j++;	
+		_.each(label, function(l) {
+			_.each(retweets, function(td) {
+				tweetTime = td.time;
+				tweetTime = moment(tweetTime).utc().format("HH:mm");
+				if (l == tweetTime) {
+					retweetData.push(td.count);
+				}
+			});
 		});
-		// while (label[j].isBefore(minRetweetTime, 'minutes')) {
-		// 	retweetData.push(0);
-		// 	j++;
-		// }
-		// _.each(retweets, function(td) {
-		// 	var total = td.count + (retweetData.length - 1 > 0 ? retweetData[retweetData.length - 1] : 0)
-		// 	retweetData.push(total);
-		// 	j++
-		// })
-		// while (j <= label.length - 1) {
-		// 	retweetData.push(retweetData.length - 1 > 0 ? retweetData[retweetData.length - 1] : 0);
-		// 	j++;
-		// }
 	}
-
-
-	var k = 0;
-	var quoteData = []
 	if (quotes.length > 0) {
-		_.each(quotes, function(td) {
-			quoteData.push(td.count);
-			// if (td.count == null) {
-			// 	retweets.push(0);
-			// }else{
-			// 	retweets.push(td.count);	
-			// }
-			k++;
+		_.each(label, function(l) {
+			_.each(quotes, function(td) {
+				tweetTime = td.time;
+				tweetTime = moment(tweetTime).utc().format("HH:mm");
+				if (l == tweetTime) {
+					quoteData.push(td.count);
+				}
+			});
 		});
-		// while (label[k].isBefore(minQuoteTime, 'minutes')) {
-		// 	quoteData.push(0);
-		// 	k++;
-		// }
-		// _.each(quoteData, function(td) {
-		// 	var total = td.count + (quoteData.length - 1 > 0 ? quoteData[quoteData.length - 1] : 0)
-		// 	quoteData.push(total);
-		// 	k++
-		// })
-		// while (k <= label.length - 1) {
-		// 	quoteData.push(quoteData.length - 1 > 0 ? quoteData[quoteData.length - 1] : 0);
-		// 	k++;
-		// }
 	}
-
-	var m = 0;
-	var favoriteData = []
-	if (favorite.length > 0) {
-		while (label[m].isBefore(minFavoriteTime, 'minutes')) {
-			favoriteData.push(0);
-			m++;
-		}
-		_.each(favoriteData, function(td) {
-			var total = td.count + (favoriteData.length - 1 > 0 ? favoriteData[favoriteData.length - 1] : 0)
-			favoriteData.push(total);
-			m++
-		})
-		while (m <= label.length - 1) {
-			favoriteData.push(favoriteData.length - 1 > 0 ? favoriteData[favoriteData.length - 1] : 0);
-			m++;
-		}
-	}
-
-	console.log(label.length, tweetData.length, retweetData.length, favoriteData.length, quoteData.length)
 
 	return {
-		labels: getFormattedLabelData(label),
+		labels: label,
 		tweetData: tweetData,
 		retweetData: retweetData,
-		quoteData: quoteData,
-		favoriteData: favoriteData
+		quoteData: quoteData
 	}
 }
 
