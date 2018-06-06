@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
 import { Line } from 'react-chartjs-2';
 import { Progress } from 'reactstrap';
-import moment from 'moment';
-import _ from 'lodash';
 
 //const brandPrimary =  '#20a8d8';
 const brandSuccess =  '#4dbd74';
@@ -76,16 +74,16 @@ const mainChartOpts = {
   },
   scales: {
     xAxes: [{
+      ticks: {
+        display: false
+      },
       gridLines: {
         drawOnChartArea: false,
       }
     }],
     yAxes: [{
       ticks: {
-        beginAtZero: true,
-        maxTicksLimit: 5,
-        stepSize: Math.ceil(250 / 5),
-        max: 250
+        display: true
       }
     }]
   },
@@ -99,22 +97,6 @@ const mainChartOpts = {
   }
 }
 
-function getMinTime(data) {
-  return data.reduce((min, d) => d.time < min ? d.time : min, data[0].time);
-}
-
-function getMaxTime(data) {
-  return data.reduce((max, d) => d.time > max ? d.time : max, data[0].time);
-}
-
-function getFormattedLabelData(label){
-  var formattedLabel = [];
-    for(var i=0; i< label.length; i++){
-      formattedLabel.push(label[i].format("HH:mm"))
-    }
-    return formattedLabel;
-  }
-
 class TrendChart extends Component {
 
   constructor (props) {
@@ -123,54 +105,25 @@ class TrendChart extends Component {
       mainChart : mainChart
     }
   }
-  // componentWillReceiveProps() {
-    
-  // }
-  
 
-  render() {
-    //console.log("trend-activity", this.props.source)
+  componentWillReceiveProps() {
     let newState = Object.assign({}, this.state);
     var source = this.props.source;
     if (Object.keys(source).length !== 0) {
-      var tweets = source["tweet"],
-      retweets = source["retweet"],
-      quotes = source["quote"];
-      var all = [...tweets, ...retweets, ...quotes]
-      var minTime = getMinTime(all);
-      var maxTime = getMaxTime(all);
-      minTime = moment(minTime).utc();
-      maxTime= moment(maxTime).utc();
-      var label=[];
-      while(minTime.isSameOrBefore(maxTime, 'minutes')){
-        label.push(moment(new Date(_.cloneDeep(minTime))).utc());
-        minTime.add(1, "m");
-      }
-      var labelCount = label.length;
-      var tweetData = []
-      for (var i = 0; i < labelCount; i++) {
-        for (var j = i; j < tweets.length; j++) {
-          console.log(moment(tweets[j].time).utc().toString(), "@@@@", label[i].toString())
-          if (moment(tweets[j].time).utc().isSame(label[i], 'minute')) {
-            console.log(tweets[j])
-            if(tweets[j].count == null){
-              tweets[j].count = 0;
-            }
-            tweetData.push(tweets[j].count + tweetData[tweetData.length - 1]);
-          } else {
-            if (tweetData.length == 0){
-              tweetData.push(0);
-            }
-            else{
-              tweetData.push(tweetData[tweetData.length - 1])
-            }
-            i++;
-          }
-        }
-      }
-      console.log(tweetData)
-    }
+      if (source.tweetData.length > 0 && source.retweetData.length > 0 && source.quotesData.length > 0) {
+        newState.mainChart.labels = source.labels;
+        newState.mainChart.datasets[0].data = source.tweetData;
+        newState.mainChart.datasets[1].data = source.retweetData;
+        newState.mainChart.datasets[2].data = source.quotesData;
+        //for(var i=0; i<source.tweetData; )
 
+        this.setState(newState);
+        //console.log(newState.mainChart)
+      }
+    }
+  }
+
+  render() {
     return (
       <div className="card">
         <div className="card-block">
@@ -185,27 +138,27 @@ class TrendChart extends Component {
            
           </div>
           <div className="chart-wrapper" style={{height: 300 + 'px', marginTop: 40 + 'px'}}>
-            <Line data={mainChart} options={mainChartOpts} height={300}/>
+            <Line data={this.state.mainChart} options={mainChartOpts} height={300}/>
           </div>
         </div>
         <div className="card-footer">
           <ul>
+
             <li>
               <div className="text-muted">Tweets</div>
-              <strong>2903 (40%)</strong>
-              <Progress className="progress-xs mt-h" color="success" value="40" />
+              <strong>2903 (40%)</strong>  
             </li>
+
             <li className="hidden-sm-down">
               <div className="text-muted">Retweets</div>
-              <strong>240 (20%)</strong>
-              <Progress className="progress-xs mt-h" color="info" value="20" />
+              <strong>240 (20%)</strong> 
             </li>
+
             <li className="hidden-sm-down">
               <div className="text-muted">Quotes</div>
-              <strong>221 (30%)</strong>
-              <Progress className="progress-xs mt-h" color="danger" value="80" />
+              <strong>221 (30%)</strong> 
             </li>
-           
+
           </ul>
         </div>
       </div>

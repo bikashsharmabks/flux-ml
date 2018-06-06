@@ -25,14 +25,21 @@ class HashTag extends Component {
     };
   }
 
+  // componentDidMount() {
+  //    // this.getCount();
+  //    // this.top();
+  //   this.interval1 = setInterval(this.getCount(), 5000);
+  //   this.interval2 = setInterval(this.top(), 5000);
+  // }
+
   componentDidMount() {
     this.interval1 = setInterval(() => {
       this.getCount()
       this.top()
-    }, 2000);
+    }, 5000);
     this.interval2 = setInterval(() => {
       this.getActivities()
-    }, 3000);
+    }, 5000);
   }
 
   componentWillUnmount() {
@@ -40,7 +47,7 @@ class HashTag extends Component {
     clearInterval(this.interval2);
   }
 
-  getCount() {
+  async getCount() {
     superagent.get('/api/hashtags/' + this.state.hashtag + '/stats')
       .set('Accept', 'application/json')
       .end((error, response) => {
@@ -57,7 +64,7 @@ class HashTag extends Component {
       });
   }
 
-  getActivities() {
+  async getActivities() {
     superagent.get('/api/hashtags/' + this.state.hashtag + '/activity-timeseries-data')
       .set('Accept', 'application/json')
       .end((error, response) => {
@@ -76,7 +83,6 @@ class HashTag extends Component {
       var responseMention = await superagent.get('/api/hashtags/' + this.state.hashtag + '/top-user-mentions');
       var responseHashtag = await superagent.get('/api/hashtags/' + this.state.hashtag + '/top-related-hashtags');
       var responseEmotion = await superagent.get('/api/hashtags/' + this.state.hashtag + '/emotion-count');
-
       this.setState({
         topMentions: responseMention.body,
         topHashTags: responseHashtag.body,
