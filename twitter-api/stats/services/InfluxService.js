@@ -148,11 +148,12 @@ function formatActivityData(data) {
 	var tweetData = []
 	if (tweets.length > 0) {
 		_.each(tweets, function(td) {
-			if (td.count == null) {
-				tweetData.push(0);
-			}else{
-				tweetData.push(td.count);	
-			}
+			tweetData.push(td.count);
+			// if (td.count == null) {
+			// 	tweetData.push(0);
+			// }else{
+			// 	tweetData.push(td.count);	
+			// }
 			i++;
 		});
 		// while (label[i].isBefore(minTweetTime, 'minutes')) {
@@ -182,10 +183,13 @@ function formatActivityData(data) {
 	var retweetData = []
 	if (retweets.length > 0) {
 		_.each(retweets, function(td) {
-			//if (td.count != null) {
-				retweetData.push(td.count);
-				j++;
-			//}
+			retweetData.push(td.count);
+			// if (td.count == null) {
+			// 	retweets.push(0);
+			// }else{
+			// 	retweets.push(td.count);	
+			// }
+			j++;	
 		});
 		// while (label[j].isBefore(minRetweetTime, 'minutes')) {
 		// 	retweetData.push(0);
@@ -207,10 +211,13 @@ function formatActivityData(data) {
 	var quoteData = []
 	if (quotes.length > 0) {
 		_.each(quotes, function(td) {
-			//if (td.count != null) {
-				quoteData.push(td.count);
-				k++;
-			//}
+			quoteData.push(td.count);
+			// if (td.count == null) {
+			// 	retweets.push(0);
+			// }else{
+			// 	retweets.push(td.count);	
+			// }
+			k++;
 		});
 		// while (label[k].isBefore(minQuoteTime, 'minutes')) {
 		// 	quoteData.push(0);
