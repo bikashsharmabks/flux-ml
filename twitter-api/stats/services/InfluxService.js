@@ -83,6 +83,9 @@ function formatActivityData(data) {
 				if (l == tweetTime) {
 					tweetData.push(td.count);
 				}
+				else {
+					tweetData.push(null)
+				}
 			});
 		});
 	}
@@ -95,6 +98,9 @@ function formatActivityData(data) {
 				if (l == tweetTime) {
 					retweetData.push(td.count);
 				}
+				else {
+					retweetData.push(null)
+				}
 			});
 		});
 	}
@@ -105,6 +111,9 @@ function formatActivityData(data) {
 				tweetTime = moment(tweetTime).utc().format("HH:mm");
 				if (l == tweetTime) {
 					quoteData.push(td.count);
+				}
+				else {
+					quoteData.push(null)
 				}
 			});
 		});
