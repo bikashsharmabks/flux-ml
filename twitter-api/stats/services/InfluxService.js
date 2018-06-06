@@ -522,7 +522,7 @@ function getTopRelatedHashTag(hashtag) {
 
 		var topHashtags = []
 
-		var topHashtagQuery = `select top(hashtagCount,otherHashtag,3) as count 
+		var topHashtagQuery = `select top(hashtagCount,otherHashtag,5) as count 
 		  from  (select sum(hashtagCount) as hashtagCount from hashtag  where hashtag = '${hashtag}'
 		 GROUP by otherHashtag)`
 

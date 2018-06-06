@@ -1,11 +1,10 @@
 import React, { Component } from 'react';
 import { Line } from 'react-chartjs-2';
-import { Progress } from 'reactstrap';
+//import { Progress } from 'reactstrap';
 
-//const brandPrimary =  '#20a8d8';
-const brandSuccess =  '#4dbd74';
-const brandInfo =     '#63c2de';
-const brandDanger =   '#f86c6b';
+const brandInfo = '#63c2de';
+const brandSuccess = '#4dbd74';
+const brandDanger = '#f86c6b';
 
 // Main Chart
 
@@ -35,7 +34,7 @@ for (var i = 0; i <= elements; i++) {
   data2.push(random(80,100));
   data3.push(65, 100);
 }
-//'M', 'T', 'W', 'T', 'F', 'S', 'S', 'M', 'T', 'W', 'T', 'F', 'S', 'S', 'M', 'T', 'W', 'T', 'F', 'S', 'S', 'M', 'T', 'W', 'T', 'F', 'S', 'S'
+
 const mainChart = {
   labels: [],
   datasets: [
@@ -60,8 +59,8 @@ const mainChart = {
       backgroundColor: 'transparent',
       borderColor: brandDanger,
       pointHoverBackgroundColor: '#fff',
-      borderWidth: 1,
-      borderDash: [8, 5],
+      borderWidth: 2,
+      //borderDash: [8, 5],
       data: data3
     }
   ]
@@ -98,11 +97,13 @@ const mainChartOpts = {
 }
 
 class TrendChart extends Component {
-
   constructor (props) {
     super(props);
     this.state = {
-      mainChart : mainChart
+      mainChart : mainChart,
+      tweetCount: 0,
+      retweetCount:0,
+      quoteCount: 0
     }
   }
 
@@ -110,15 +111,19 @@ class TrendChart extends Component {
     let newState = Object.assign({}, this.state);
     var source = this.props.source;
     if (Object.keys(source).length !== 0) {
-      if (source.tweetData.length > 0 && source.retweetData.length > 0 && source.quotesData.length > 0) {
+      if (source.tweetData && source.retweetData && source.quoteData) {
+        console.log(source.labels)
         newState.mainChart.labels = source.labels;
         newState.mainChart.datasets[0].data = source.tweetData;
         newState.mainChart.datasets[1].data = source.retweetData;
-        newState.mainChart.datasets[2].data = source.quotesData;
-        //for(var i=0; i<source.tweetData; )
+        newState.mainChart.datasets[2].data = source.quoteData;
+        // for(var i=0; i<source.tweetData; i++){
+        //   var count = 0;
+        //   //if()
+        //   count = count+source.tweetData[i]
+        // }
 
         this.setState(newState);
-        //console.log(newState.mainChart)
       }
     }
   }
@@ -145,17 +150,17 @@ class TrendChart extends Component {
           <ul>
 
             <li>
-              <div className="text-muted">Tweets</div>
+              <div className="text-muted"><font color="brandSuccess"><b>Tweets</b></font></div>
               <strong>2903 (40%)</strong>  
             </li>
 
             <li className="hidden-sm-down">
-              <div className="text-muted">Retweets</div>
+              <div className="text-muted"><font color="brandDanger"><b>Retweets</b></font></div>
               <strong>240 (20%)</strong> 
             </li>
 
             <li className="hidden-sm-down">
-              <div className="text-muted">Quotes</div>
+              <div className="text-muted"><font color="brandInfo"><b>Quotes</b></font></div>
               <strong>221 (30%)</strong> 
             </li>
 
