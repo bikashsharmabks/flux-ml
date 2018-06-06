@@ -24,7 +24,7 @@ function random(min,max) {
   return Math.floor(Math.random()*(max-min+1)+min);
 }
 
-var elements = 27;
+var elements = 30;
 var data1 = [];
 var data2 = [];
 var data3 = [];
@@ -103,7 +103,8 @@ class TrendChart extends Component {
       mainChart : mainChart,
       tweetCount: 0,
       retweetCount:0,
-      quoteCount: 0
+      quoteCount: 0,
+      time: "HH:MM"
     }
   }
 
@@ -112,20 +113,18 @@ class TrendChart extends Component {
     var source = this.props.source;
     if (Object.keys(source).length !== 0) {
       if (source.tweetData && source.retweetData && source.quoteData) {
-        console.log(source.labels)
         newState.mainChart.labels = source.labels;
+        newState.time = source.labels[0];
         newState.mainChart.datasets[0].data = source.tweetData;
         newState.mainChart.datasets[1].data = source.retweetData;
         newState.mainChart.datasets[2].data = source.quoteData;
-        // for(var i=0; i<source.tweetData; i++){
-        //   var count = 0;
-        //   //if()
-        //   count = count+source.tweetData[i]
-        // }
-
         this.setState(newState);
       }
     }
+  }
+
+  componentWillUnmount() {
+    this.state.mainChart = {}
   }
 
   render() {
@@ -138,7 +137,7 @@ class TrendChart extends Component {
               <i className="icon-graph text-success"></i>
           </div>
               <h4 className="card-title mb-0">Trends</h4>
-              <div className="small text-muted">Since 9:00 AM Today</div>
+              <div className="small text-muted">Since {this.state.time} today</div>
             </div>
            
           </div>
@@ -151,7 +150,7 @@ class TrendChart extends Component {
 
             <li>
               <div className="text-muted"><font color="brandSuccess"><b>Tweets</b></font></div>
-              <strong>2903 (40%)</strong>  
+              <strong>{this.state.tweetCount} (40%)</strong>  
             </li>
 
             <li className="hidden-sm-down">
