@@ -44,9 +44,23 @@ function getMaxTime(data) {
 function getFormattedLabelData(label) {
 	var formattedLabel = [];
 	for (var i = 0; i < label.length; i++) {
-		formattedLabel.push(label[i].format("HH:mm"))
+		formattedLabel.push(label[i].format("HH:mm"));
 	}
 	return formattedLabel;
+}
+
+function getFormattedData(tweet) {
+	//console.log(tweet)
+	var formattedTweet = [];
+	for (var i = 0; i < tweet.length; i++) {
+		tweet[i].time = moment(tweet[i].time);
+		//console.log("i", tweet[i])
+		formattedTweet.push({
+			time: tweet[i].time.format("HH:mm"),
+			count: tweet[i].count
+		});
+	}
+	return formattedTweet;
 }
 
 function formatActivityData(data) {
@@ -74,51 +88,44 @@ function formatActivityData(data) {
 	var tweetData = [],
 		retweetData = [],
 		quoteData = [];
-
+		tweets = getFormattedData(tweets);
+		retweets = getFormattedData(retweets);
+		quotes = getFormattedData(quotes);
 	if (tweets.length > 0) {
 		_.each(label, function(l) {
-			_.each(tweets, function(td) {
-				tweetTime = td.time;
-				tweetTime = moment(tweetTime).utc().format("HH:mm");
-				if (l == tweetTime) {
-					tweetData.push(td.count);
-				}
-				else {
-					tweetData.push(0)
-				}
-			});
+			var _tweets = _.find(tweets, { 'time': l });
+			if(_tweets){
+				tweetData.push(_tweets["count"])
+			}
+			else{
+				tweetData.push(0)
+			}
 		});
 	}
 
 	if (retweets.length > 0) {
 		_.each(label, function(l) {
-			_.each(retweets, function(td) {
-				tweetTime = td.time;
-				tweetTime = moment(tweetTime).utc().format("HH:mm");
-				if (l == tweetTime) {
-					retweetData.push(td.count);
-				}
-				else {
-					retweetData.push(0)
-				}
-			});
-		});
-	}
-	if (quotes.length > 0) {
-		_.each(label, function(l) {
-			_.each(quotes, function(td) {
-				tweetTime = td.time;
-				tweetTime = moment(tweetTime).utc().format("HH:mm");
-				if (l == tweetTime) {
-					quoteData.push(td.count);
-				}
-				else {
-					quoteData.push(0)
-				}
-			});
+			var _retweets = _.find(retweets, { 'time': l });
+			if(_retweets){
+				retweetData.push(_retweets["count"])
+			}
+			else{
+				retweetData.push(0)
+			}
 		});
 	}
 
+	if (quotes.length > 0) {
+		_.each(label, function(l) {
+			var _quotes = _.find(quotes, { 'time': l });
+			if(_quotes){
+				quoteData.push(_quotes["count"])
+			}
+			else{
+				quoteData.push(0)
+			}
+		});
+	}
 	return {
 		labels: label,
 		tweetData: tweetData,
