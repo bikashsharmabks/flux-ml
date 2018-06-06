@@ -33,7 +33,7 @@ class HashTags extends Component {
 
   	var allHashtags = this.state.hashtags.map(function(ah){
             return (
-                 <Link to={'/hashTags/' + ah.hashtag} key={ah.hashtag} style={{minWidth :200}} className="card hashtags">
+                 <Link to={'/hashTags/' + ah.hashtag} key={ah.hashtag} style={{minWidth :300}} className="card hashtags">
 					<div className="card-body p-1">
 					    <h4 key={ah.hashtag} className="card-title brand-success">#{ah.hashtag}</h4>
 					      <p className="card-text">

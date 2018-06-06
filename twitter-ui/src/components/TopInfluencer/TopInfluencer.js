@@ -12,10 +12,13 @@ class TopInfluencers extends Component {
                           <img src={tm.profileUrl} className="img-avatar" alt="admin@bootstrapmaster.com"/>
                       </div>
                   </div>
-                  <div>
-                      {<span className="font-weight-bold">{tm.userScreenName}</span>}
-                      {<span className="text-muted"> @{tm.userScreenName}</span>}
-                  </div>
+                 <div style={{marginTop: 12}}>
+                     {<span  className="font-weight-bold">{tm.userScreenName}</span>}
+                     {<span className="text-muted"> @{tm.userScreenName}</span>}
+                     {tm.verified ? <span className="text-success font-weight-bold fa fa-check-circle" style={{marginLeft:5}}/> : ""}
+                 
+              
+                 </div>
                 </div>          
               </div>)
             })
