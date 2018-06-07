@@ -44,7 +44,7 @@ function getMaxTime(data) {
 function getFormattedLabelData(label) {
 	var formattedLabel = [];
 	for (var i = 0; i < label.length; i++) {
-		formattedLabel.push(label[i].format("HH:mm"));
+		formattedLabel.push(label[i].format("MM-DD-YYYY HH:mm"));
 	}
 	return formattedLabel;
 }
@@ -56,7 +56,7 @@ function getFormattedData(tweet) {
 		tweet[i].time = moment(tweet[i].time);
 		//console.log("i", tweet[i])
 		formattedTweet.push({
-			time: tweet[i].time.format("HH:mm"),
+			time: tweet[i].time.format("MM-DD-YYYY HH:mm"),
 			count: tweet[i].count
 		});
 	}
@@ -68,14 +68,20 @@ function formatActivityData(data) {
 	var tweets = (data["tweet"]),
 		retweets = data["retweet"],
 		quotes = data["quote"],
-		favorite = data["favorite"];
+		favorite = data["favorite"],
+		positive = data["positive"],
+		negative = data["negative"],
+		neutral = data["neutral"];
 
 	tweets = tweets.filter(d => d.count);
 	retweets = retweets.filter(d => d.count);
 	quotes = quotes.filter(d => d.count);
 	favorite = favorite.filter(d => d.count);
+	positive = positive.filter(d => d.count);
+	negative = negative.filter(d => d.count);
+	neutral = neutral.filter(d => d.count);
 
-	var all = _.union(tweets, retweets, quotes);
+	var all = _.union(tweets, retweets, quotes, positive, negative, neutral);
 	var label = [];
 	for (var i = 0; i < all.length; i++) {
 		label.push(moment(all[i].time).utc());
@@ -84,13 +90,20 @@ function formatActivityData(data) {
 	label = getFormattedLabelData(label);
 	label = _.uniq(label);
 	label = label.sort();
-
+	//console.log(label)
 	var tweetData = [],
 		retweetData = [],
-		quoteData = [];
+		quoteData = [],
+		positiveSentiment = [],
+		negativeSentiment = [],
+		neutralSentiment = [];
 		tweets = getFormattedData(tweets);
 		retweets = getFormattedData(retweets);
 		quotes = getFormattedData(quotes);
+		positive = getFormattedData(positive);
+		neutral = getFormattedData(neutral);
+		negative = getFormattedData(negative);
+
 	if (tweets.length > 0) {
 		_.each(label, function(l) {
 			var _tweets = _.find(tweets, { 'time': l });
@@ -126,11 +139,53 @@ function formatActivityData(data) {
 			}
 		});
 	}
+
+
+	if (positive.length > 0) {
+		_.each(label, function(l) {
+			var _positive = _.find(positive, { 'time': l });
+			if(_positive){
+				positiveSentiment.push(_positive["count"])
+			}
+			else{
+				positiveSentiment.push(0)
+			}
+		});
+	}
+
+
+	if (negative.length > 0) {
+		_.each(label, function(l) {
+			var _negative = _.find(negative, { 'time': l });
+			if(_negative){
+				negativeSentiment.push(parseInt("-" + _negative["count"]));
+			}
+			else{
+				negativeSentiment.push(0)
+			}
+		});
+	}
+
+
+	if (neutral.length > 0) {
+		_.each(label, function(l) {
+			var _neutral = _.find(neutral, { 'time': l });
+			if(_neutral){
+				neutralSentiment.push(_neutral["count"])
+			}
+			else{
+				neutralSentiment.push(0)
+			}
+		});
+	}
 	return {
 		labels: label,
 		tweetData: tweetData,
 		retweetData: retweetData,
-		quoteData: quoteData
+		quoteData: quoteData,
+		neutralSentiment: neutralSentiment,
+		positiveSentiment: positiveSentiment,
+		negativeSentiment: negativeSentiment
 	}
 }
 
@@ -423,11 +478,17 @@ function getActivityTimeSeriesData(hashtag) {
 			quote: [],
 			tweet: [],
 			favorite: [],
-			retweet: []
+			retweet: [],
+			positive: [],
+			negative:[],
+			neutral:[]
 		}
 
 		var activityTSQuery = `select sum(activityCount) as count from 
 		activity where hashtag = '${hashtag}' GROUP by activityType, time(1m)`
+
+		var emotionTSQuery = `select sum(emotionCount) as count from 
+		activity where hashtag = '${hashtag}' GROUP by emotion, time(1m)`
 
 
 
@@ -438,8 +499,17 @@ function getActivityTimeSeriesData(hashtag) {
 					activityTSData[res.activityType].push(res)
 				}
 			});
+			return influx.query(emotionTSQuery);
+
+		}).then(function(emotionData) {
+			_.each(emotionData, function(res) {
+				if (res.emotion == "positive" || res.emotion == "negative" || res.emotion == "neutral") {
+					activityTSData[res.emotion].push(res)
+				}
+			});
 			return resolve(formatActivityData(activityTSData));
 		}).catch(function(err) {
+
 			console.log(err)
 			return reject(new Error("Something went wrong."));
 		})

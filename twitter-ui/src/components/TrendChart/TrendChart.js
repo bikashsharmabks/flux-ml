@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
-import { Line , Bar } from 'react-chartjs-2';
+import { Line , Bar  } from 'react-chartjs-2';
+import moment from 'moment';
 //import { Progress } from 'reactstrap';
 
 const brandInfo = '#63c2de';
 const brandSuccess = '#4dbd74';
 const brandDanger = '#f86c6b';
 
-// Main Chart
 
 // convert Hex to RGBA
 function convertHex(hex,opacity) {
@@ -19,37 +19,85 @@ function convertHex(hex,opacity) {
   return result;
 }
 
-//Random Numbers
-// function random(min,max) {
-//   return Math.floor(Math.random()*(max-min+1)+min);
+const sentimentChart = {
+  labels: [],
+  datasets: [{
+    label: 'Positive',
+    backgroundColor: convertHex('#4dbd74',60),
+    borderColor: '#4dbd74',
+    borderWidth: 1,
+    data: []
+  }, {
+    label: 'Negative',
+    backgroundColor: convertHex('#FF6384',60),
+    borderColor: '#FF6384',
+    borderWidth: 1,
+    data: []
+  }, {
+    label: 'Neutral',
+    backgroundColor: convertHex('#FFCE56', 60),
+    borderColor: '#FFCE56',
+    borderWidth: 1,
+    data: []
+  }]
+}
+
+// const sentimentChartOpts = {
+//   maintainAspectRatio: false,
+//   legend: {
+//     display: false
+//   },
+//   scales: {
+//     xAxes: [{
+//       stacked: true
+//     }, {
+//       display: false
+//     }],
+//     yAxes: [{
+//       stacked: true
+//     }]
+//   },
+//   elements: {
+//     point: {
+//       radius: 0,
+//       hitRadius: 10,
+//       hoverRadius: 4,
+//       hoverBorderWidth: 3,
+//     }
+//   }
 // }
 
-//var elements = 30;
-var data1 = [];
-var data2 = [];
-var data3 = [];
-
-// for (var i = 0; i <= elements; i++) {
-//   data1.push(random(50,200));
-//   data2.push(random(80,100));
-//   data3.push(65, 100);
-// }
-
-// const sentimentChart = {
-//   labels: [],
-//   datasets: [{
-//     backgroundColor: [
-//       '#FF6384',
-//       '#4dbd74',
-//       '#FFCE56'
-//     ],
-//     borderColor: 'black',
-//     borderWidth: 3,
-//     hoverBackgroundColor: 'rgba(255,99,132,0.4)',
-//     hoverBorderColor: 'rgba(255,99,132,1)',
-//     data: [newpiData(), newpiData2(), newpiData3(), newpiData4(), newpiData5()]
-//   }]
-// }
+const sentimentChartOpts = {
+  maintainAspectRatio: false,
+  legend: {
+    display: false
+  },
+  scales: {
+    xAxes: [{
+      ticks: {
+        display: false
+      },
+      stacked: true,
+      gridLines: {
+        drawOnChartArea: false,
+      }
+    }],
+    yAxes: [{
+      ticks: {
+        display: true
+      },
+      stacked: true,
+    }]
+  },
+  elements: {
+    point: {
+      radius: 0,
+      hitRadius: 10,
+      hoverRadius: 4,
+      hoverBorderWidth: 3,
+    }
+  }
+}
 
 const mainChart = {
   labels: [],
@@ -60,7 +108,7 @@ const mainChart = {
       borderColor: brandInfo,
       pointHoverBackgroundColor: '#fff',
       borderWidth: 2,
-      data: data1
+      data: []
     },
     {
       label: 'Retweets',
@@ -68,7 +116,7 @@ const mainChart = {
       borderColor: brandSuccess,
       pointHoverBackgroundColor: '#fff',
       borderWidth: 2,
-      data: data2
+      data: []
     },
     {
       label: 'Quotes',
@@ -77,7 +125,7 @@ const mainChart = {
       pointHoverBackgroundColor: '#fff',
       borderWidth: 2,
       //borderDash: [8, 5],
-      data: data3
+      data: []
     }
   ]
 }
@@ -117,6 +165,7 @@ class TrendChart extends Component {
     super(props);
     this.state = {
       mainChart : mainChart,
+      sentimentChart: sentimentChart,
       tweetCount: 0,
       retweetCount:0,
       quoteCount: 0,
@@ -131,16 +180,20 @@ class TrendChart extends Component {
       if (source.tweetData && source.retweetData && source.quoteData) {
         var tCount = 0, rCount = 0, qCount = 0;
         for(var i = 0; i < source.tweetData.length; i++){
-          tCount = tCount+ source.tweetData[i];
+          tCount += source.tweetData[i];
         }
-        for(var i = 0; i < source.retweetData.length; i++){
-          rCount = rCount+ source.retweetData[i];
+        for(var j = 0; j < source.retweetData.length; j++){
+          rCount += source.retweetData[j];
         }
-        for(var i = 0; i < source.quoteData.length; i++){
-          qCount = qCount+ source.quoteData[i];
+        for(var  k= 0; k < source.quoteData.length; k++){
+          qCount += source.quoteData[k];
         }
         newState.mainChart.labels = source.labels;
-        newState.time = source.labels[0];
+        newState.sentimentChart.labels = source.labels;
+        newState.sentimentChart.datasets[0].data = source.positiveSentiment;
+        newState.sentimentChart.datasets[1].data = source.negativeSentiment;
+        newState.sentimentChart.datasets[2].data = source.neutralSentiment;
+        newState.time = new Date(moment(source.labels[0])).toString();
         newState.mainChart.datasets[0].data = source.tweetData;
         newState.mainChart.datasets[1].data = source.retweetData;
         newState.mainChart.datasets[2].data = source.quoteData;
@@ -148,12 +201,14 @@ class TrendChart extends Component {
         newState.retweetCount = rCount;
         newState.quoteCount = qCount;
         this.setState(newState);
+        this.forceUpdate();
       }
     }
   }
 
   componentWillUnmount() {
-    this.state.mainChart = {}
+    this.setState.mainChart = {}
+    this.setState.sentimentChart = {}
   }
 
   render() {
@@ -172,6 +227,10 @@ class TrendChart extends Component {
           </div>
           <div className="chart-wrapper" style={{height: 300 + 'px', marginTop: 40 + 'px'}}>
             <Line data={this.state.mainChart} options={mainChartOpts} height={300}/>
+          </div>
+
+          <div className="chart-wrapper" style={{height: 100 + 'px', marginTop: 20 + 'px'}}>
+            <Bar data={this.state.sentimentChart} options={sentimentChartOpts} height={300}/>
           </div>
         </div>
         <div className="card-footer">
