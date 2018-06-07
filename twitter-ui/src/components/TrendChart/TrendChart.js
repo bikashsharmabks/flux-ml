@@ -22,19 +22,19 @@ function convertHex(hex,opacity) {
 const sentimentChart = {
   labels: [],
   datasets: [{
-    label: 'Positive',
+    label: 'Positive Sentiment',
     backgroundColor: convertHex('#4dbd74',60),
     borderColor: '#4dbd74',
     borderWidth: 1,
     data: []
   }, {
-    label: 'Negative',
+    label: 'Negative Sentiment',
     backgroundColor: convertHex('#FF6384',60),
     borderColor: '#FF6384',
     borderWidth: 1,
     data: []
   }, {
-    label: 'Neutral',
+    label: 'Neutral Sentiment',
     backgroundColor: convertHex('#FFCE56', 60),
     borderColor: '#FFCE56',
     borderWidth: 1,
