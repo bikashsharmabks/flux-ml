@@ -188,8 +188,12 @@ class TrendChart extends Component {
         for(var  k= 0; k < source.quoteData.length; k++){
           qCount += source.quoteData[k];
         }
-        newState.mainChart.labels = source.labels;
-        newState.sentimentChart.labels = source.labels;
+        var formattedDateLabels= [];
+        for(var x=0; x<source.labels.length; x++){
+          formattedDateLabels.push(new Date(moment(source.labels[i])).toString());
+        }
+        newState.mainChart.labels = formattedDateLabels;
+        newState.sentimentChart.labels = formattedDateLabels
         newState.sentimentChart.datasets[0].data = source.positiveSentiment;
         newState.sentimentChart.datasets[1].data = source.negativeSentiment;
         newState.sentimentChart.datasets[2].data = source.neutralSentiment;
