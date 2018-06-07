@@ -4,8 +4,8 @@ import moment from 'moment';
 //import { Progress } from 'reactstrap';
 
 const brandInfo = '#63c2de';
-const brandSuccess = '#4dbd74';
-const brandDanger = '#f86c6b';
+const brandSuccess = '#254441'; //'#4dbd74';
+const brandDanger = '#F39237'; //'#FF6384';
 
 
 // convert Hex to RGBA
