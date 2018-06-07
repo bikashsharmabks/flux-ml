@@ -95,9 +95,9 @@ class HashTag extends Component {
 
   render() {
 
-  	const activityCount = this.state.activityCount
-  	const verified = this.state.verified
-  	const userInteracted = this.state.userInteracted
+  	const activityCount = this.state.activityCount ? this.state.activityCount : 0;
+  	const verified = this.state.verified ? this.state.verified : 0;
+  	const userInteracted = this.state.userInteracted ? this.state.userInteracted : 0;
   	const topInfluencers = this.state.topInfluencers
   	const topHashTags = this.state.topHashTags
   	const sentiments = this.state.sentiments

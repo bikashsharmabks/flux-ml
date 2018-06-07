@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Line } from 'react-chartjs-2';
+import { Line , Bar } from 'react-chartjs-2';
 //import { Progress } from 'reactstrap';
 
 const brandInfo = '#63c2de';
@@ -20,20 +20,36 @@ function convertHex(hex,opacity) {
 }
 
 //Random Numbers
-function random(min,max) {
-  return Math.floor(Math.random()*(max-min+1)+min);
-}
+// function random(min,max) {
+//   return Math.floor(Math.random()*(max-min+1)+min);
+// }
 
-var elements = 30;
+//var elements = 30;
 var data1 = [];
 var data2 = [];
 var data3 = [];
 
-for (var i = 0; i <= elements; i++) {
-  data1.push(random(50,200));
-  data2.push(random(80,100));
-  data3.push(65, 100);
-}
+// for (var i = 0; i <= elements; i++) {
+//   data1.push(random(50,200));
+//   data2.push(random(80,100));
+//   data3.push(65, 100);
+// }
+
+// const sentimentChart = {
+//   labels: [],
+//   datasets: [{
+//     backgroundColor: [
+//       '#FF6384',
+//       '#4dbd74',
+//       '#FFCE56'
+//     ],
+//     borderColor: 'black',
+//     borderWidth: 3,
+//     hoverBackgroundColor: 'rgba(255,99,132,0.4)',
+//     hoverBorderColor: 'rgba(255,99,132,1)',
+//     data: [newpiData(), newpiData2(), newpiData3(), newpiData4(), newpiData5()]
+//   }]
+// }
 
 const mainChart = {
   labels: [],
@@ -48,7 +64,7 @@ const mainChart = {
     },
     {
       label: 'Retweets',
-      backgroundColor: 'transparent',
+      backgroundColor: convertHex(brandSuccess,10),
       borderColor: brandSuccess,
       pointHoverBackgroundColor: '#fff',
       borderWidth: 2,
@@ -56,7 +72,7 @@ const mainChart = {
     },
     {
       label: 'Quotes',
-      backgroundColor: 'transparent',
+      backgroundColor: convertHex(brandDanger,10),
       borderColor: brandDanger,
       pointHoverBackgroundColor: '#fff',
       borderWidth: 2,
@@ -123,7 +139,6 @@ class TrendChart extends Component {
         for(var i = 0; i < source.quoteData.length; i++){
           qCount = qCount+ source.quoteData[i];
         }
-        console.log(tCount, rCount, qCount);
         newState.mainChart.labels = source.labels;
         newState.time = source.labels[0];
         newState.mainChart.datasets[0].data = source.tweetData;
