@@ -241,17 +241,17 @@ class TrendChart extends Component {
           <ul>
 
             <li>
-              <div className="text-muted"><font color="brandSuccess"><b>Tweets</b></font></div>
+              <div className="text-muted"><font color={brandSuccess}><b>Tweets</b></font></div>
               <strong>{this.state.tweetCount}</strong>  
             </li>
 
             <li className="hidden-sm-down">
-              <div className="text-muted"><font color="brandDanger"><b>Retweets</b></font></div>
+              <div className="text-muted"><font color={brandDanger}><b>Retweets</b></font></div>
               <strong>{this.state.retweetCount}</strong> 
             </li>
 
             <li className="hidden-sm-down">
-              <div className="text-muted"><font color="brandInfo"><b>Quotes</b></font></div>
+              <div className="text-muted"><font color={brandInfo}><b>Quotes</b></font></div>
               <strong>{this.state.quoteCount}</strong> 
             </li>
 
