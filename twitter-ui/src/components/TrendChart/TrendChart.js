@@ -169,7 +169,7 @@ class TrendChart extends Component {
       tweetCount: 0,
       retweetCount:0,
       quoteCount: 0,
-      time: "HH:MM"
+      time: "HH:MM:SS"
     }
   }
 
@@ -190,10 +190,10 @@ class TrendChart extends Component {
         }
         var formattedDateLabels= [];
         for(var x=0; x<source.labels.length; x++){
-          formattedDateLabels.push(new Date(moment(source.labels[i])).toString());
+          formattedDateLabels.push(new Date(moment(source.labels[x])).toString());
         }
         newState.mainChart.labels = formattedDateLabels;
-        newState.sentimentChart.labels = formattedDateLabels
+        newState.sentimentChart.labels = formattedDateLabels;
         newState.sentimentChart.datasets[0].data = source.positiveSentiment;
         newState.sentimentChart.datasets[1].data = source.negativeSentiment;
         newState.sentimentChart.datasets[2].data = source.neutralSentiment;
