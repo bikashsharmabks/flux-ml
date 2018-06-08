@@ -4,7 +4,7 @@ import moment from 'moment';
 //import { Progress } from 'reactstrap';
 
 const brandInfo = '#63c2de';
-const brandSuccess = '#FF6F59'; //'#4dbd74';
+const brandSuccess = '#b08ee4'; //'#4dbd74';
 const brandDanger = '#F39237'; //'#FF6384';
 
 
