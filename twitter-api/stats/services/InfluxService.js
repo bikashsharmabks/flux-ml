@@ -485,10 +485,10 @@ function getActivityTimeSeriesData(hashtag) {
 		}
 
 		var activityTSQuery = `select sum(activityCount) as count from 
-		activity where hashtag = '${hashtag}' AND time > now() - 60m GROUP by activityType, time(1m)  `
+		activity where hashtag = '${hashtag}' AND time > now() - 90m GROUP by activityType, time(1m)  `
 
 		var emotionTSQuery = `select sum(emotionCount) as count from 
-		activity where hashtag = '${hashtag}' AND time > now() - 60m GROUP by emotion, time(1m)`
+		activity where hashtag = '${hashtag}' AND time > now() - 90m GROUP by emotion, time(1m)`
 
 		console.log(activityTSQuery)
 
