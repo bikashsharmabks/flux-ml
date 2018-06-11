@@ -190,14 +190,14 @@ class TrendChart extends Component {
         }
         var formattedDateLabels= [];
         for(var x=0; x<source.labels.length; x++){
-          formattedDateLabels.push(new Date(moment(source.labels[x])).toString());
+          formattedDateLabels.push(new Date(moment.utc(source.labels[x]))).toString();
         }
         newState.mainChart.labels = formattedDateLabels;
         newState.sentimentChart.labels = formattedDateLabels;
         newState.sentimentChart.datasets[0].data = source.positiveSentiment;
         newState.sentimentChart.datasets[1].data = source.negativeSentiment;
         newState.sentimentChart.datasets[2].data = source.neutralSentiment;
-        newState.time = new Date(moment(source.labels[0])).toString();
+        newState.time = moment.utc(source.labels[0]).local().toString();
         newState.mainChart.datasets[0].data = source.tweetData;
         newState.mainChart.datasets[1].data = source.retweetData;
         newState.mainChart.datasets[2].data = source.quoteData;
