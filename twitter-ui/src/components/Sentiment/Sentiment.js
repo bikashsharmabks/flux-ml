@@ -8,7 +8,7 @@ const doughnut = {
     'Neutral'
   ],
   datasets: [{
-    data: [300, 50, 100],
+    data: [0, 0, 0],
     backgroundColor: [
     '#FF6384',
     '#4dbd74',
@@ -49,7 +49,7 @@ class Sentiment extends Component {
         negativeCount = source[i].count
       }
     }
-    newState.doughnut.datasets[0].data = [neutralCount,positiveCount,negativeCount];
+    newState.doughnut.datasets[0].data = [negativeCount, positiveCount, neutralCount];
     this.setState(newState);
   }
 

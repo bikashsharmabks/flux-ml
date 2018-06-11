@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
-import { Line } from 'react-chartjs-2';
+import { Line , Bar  } from 'react-chartjs-2';
+import moment from 'moment';
 //import { Progress } from 'reactstrap';
 
 const brandInfo = '#63c2de';
-const brandSuccess = '#4dbd74';
-const brandDanger = '#f86c6b';
+const brandSuccess = '#b08ee4'; //'#4dbd74';
+const brandDanger = '#F39237'; //'#FF6384';
 
-// Main Chart
 
 // convert Hex to RGBA
 function convertHex(hex,opacity) {
@@ -19,20 +19,84 @@ function convertHex(hex,opacity) {
   return result;
 }
 
-//Random Numbers
-function random(min,max) {
-  return Math.floor(Math.random()*(max-min+1)+min);
+const sentimentChart = {
+  labels: [],
+  datasets: [{
+    label: 'Positive Sentiment',
+    backgroundColor: convertHex('#4dbd74',60),
+    borderColor: '#4dbd74',
+    borderWidth: 1,
+    data: []
+  }, {
+    label: 'Negative Sentiment',
+    backgroundColor: convertHex('#FF6384',60),
+    borderColor: '#FF6384',
+    borderWidth: 1,
+    data: []
+  }, {
+    label: 'Neutral Sentiment',
+    backgroundColor: convertHex('#FFCE56', 60),
+    borderColor: '#FFCE56',
+    borderWidth: 1,
+    data: []
+  }]
 }
 
-var elements = 30;
-var data1 = [];
-var data2 = [];
-var data3 = [];
+// const sentimentChartOpts = {
+//   maintainAspectRatio: false,
+//   legend: {
+//     display: false
+//   },
+//   scales: {
+//     xAxes: [{
+//       stacked: true
+//     }, {
+//       display: false
+//     }],
+//     yAxes: [{
+//       stacked: true
+//     }]
+//   },
+//   elements: {
+//     point: {
+//       radius: 0,
+//       hitRadius: 10,
+//       hoverRadius: 4,
+//       hoverBorderWidth: 3,
+//     }
+//   }
+// }
 
-for (var i = 0; i <= elements; i++) {
-  data1.push(random(50,200));
-  data2.push(random(80,100));
-  data3.push(65, 100);
+const sentimentChartOpts = {
+  maintainAspectRatio: false,
+  legend: {
+    display: false
+  },
+  scales: {
+    xAxes: [{
+      ticks: {
+        display: false
+      },
+      stacked: true,
+      gridLines: {
+        drawOnChartArea: false,
+      }
+    }],
+    yAxes: [{
+      ticks: {
+        display: true
+      },
+      stacked: true,
+    }]
+  },
+  elements: {
+    point: {
+      radius: 0,
+      hitRadius: 10,
+      hoverRadius: 4,
+      hoverBorderWidth: 3,
+    }
+  }
 }
 
 const mainChart = {
@@ -44,24 +108,24 @@ const mainChart = {
       borderColor: brandInfo,
       pointHoverBackgroundColor: '#fff',
       borderWidth: 2,
-      data: data1
+      data: []
     },
     {
       label: 'Retweets',
-      backgroundColor: 'transparent',
+      backgroundColor: convertHex(brandSuccess,10),
       borderColor: brandSuccess,
       pointHoverBackgroundColor: '#fff',
       borderWidth: 2,
-      data: data2
+      data: []
     },
     {
       label: 'Quotes',
-      backgroundColor: 'transparent',
+      backgroundColor: convertHex(brandDanger,10),
       borderColor: brandDanger,
       pointHoverBackgroundColor: '#fff',
       borderWidth: 2,
       //borderDash: [8, 5],
-      data: data3
+      data: []
     }
   ]
 }
@@ -101,10 +165,11 @@ class TrendChart extends Component {
     super(props);
     this.state = {
       mainChart : mainChart,
+      sentimentChart: sentimentChart,
       tweetCount: 0,
       retweetCount:0,
       quoteCount: 0,
-      time: "HH:MM"
+      time: "HH:MM:SS"
     }
   }
 
@@ -115,17 +180,24 @@ class TrendChart extends Component {
       if (source.tweetData && source.retweetData && source.quoteData) {
         var tCount = 0, rCount = 0, qCount = 0;
         for(var i = 0; i < source.tweetData.length; i++){
-          tCount = tCount+ source.tweetData[i];
+          tCount += source.tweetData[i];
         }
-        for(var i = 0; i < source.retweetData.length; i++){
-          rCount = rCount+ source.retweetData[i];
+        for(var j = 0; j < source.retweetData.length; j++){
+          rCount += source.retweetData[j];
         }
-        for(var i = 0; i < source.quoteData.length; i++){
-          qCount = qCount+ source.quoteData[i];
+        for(var  k= 0; k < source.quoteData.length; k++){
+          qCount += source.quoteData[k];
         }
-        console.log(tCount, rCount, qCount);
-        newState.mainChart.labels = source.labels;
-        newState.time = source.labels[0];
+        var formattedDateLabels= [];
+        for(var x=0; x<source.labels.length; x++){
+          formattedDateLabels.push(new Date(moment.utc(source.labels[x]))).toString();
+        }
+        newState.mainChart.labels = formattedDateLabels;
+        newState.sentimentChart.labels = formattedDateLabels;
+        newState.sentimentChart.datasets[0].data = source.positiveSentiment;
+        newState.sentimentChart.datasets[1].data = source.negativeSentiment;
+        newState.sentimentChart.datasets[2].data = source.neutralSentiment;
+        newState.time = moment.utc(source.labels[0]).local().toString();
         newState.mainChart.datasets[0].data = source.tweetData;
         newState.mainChart.datasets[1].data = source.retweetData;
         newState.mainChart.datasets[2].data = source.quoteData;
@@ -133,12 +205,14 @@ class TrendChart extends Component {
         newState.retweetCount = rCount;
         newState.quoteCount = qCount;
         this.setState(newState);
+        this.forceUpdate();
       }
     }
   }
 
   componentWillUnmount() {
-    this.state.mainChart = {}
+    this.setState.mainChart = {}
+    this.setState.sentimentChart = {}
   }
 
   render() {
@@ -158,22 +232,26 @@ class TrendChart extends Component {
           <div className="chart-wrapper" style={{height: 300 + 'px', marginTop: 40 + 'px'}}>
             <Line data={this.state.mainChart} options={mainChartOpts} height={300}/>
           </div>
+
+          <div className="chart-wrapper" style={{height: 100 + 'px', marginTop: 20 + 'px'}}>
+            <Bar data={this.state.sentimentChart} options={sentimentChartOpts} height={300}/>
+          </div>
         </div>
         <div className="card-footer">
           <ul>
 
             <li>
-              <div className="text-muted"><font color="brandSuccess"><b>Tweets</b></font></div>
+              <div className="text-muted"><font color={brandInfo}><b>Tweets</b></font></div>
               <strong>{this.state.tweetCount}</strong>  
             </li>
 
             <li className="hidden-sm-down">
-              <div className="text-muted"><font color="brandDanger"><b>Retweets</b></font></div>
+              <div className="text-muted"><font color={brandSuccess}><b>Retweets</b></font></div>
               <strong>{this.state.retweetCount}</strong> 
             </li>
 
             <li className="hidden-sm-down">
-              <div className="text-muted"><font color="brandInfo"><b>Quotes</b></font></div>
+              <div className="text-muted"><font color={brandDanger}><b>Quotes</b></font></div>
               <strong>{this.state.quoteCount}</strong> 
             </li>
 
