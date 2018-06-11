@@ -107,13 +107,16 @@ class HashTag extends Component {
       <div className="animated fadeIn">
 
       	<div className="row mt-2">
-	  		<div className="col-sm-6 col-lg-3">
-	  			<div className="h2 font-weight-bold">#{this.props.routeParams.hashTag}</div>
-	  		</div>
+	  		 <div className="col-lg-10">
+	  		   <div className="h2 font-weight-bold">
+              #{this.props.routeParams.hashTag}
+              <span className='pulse'></span>
+           </div>
+
+         </div>
       	</div>
 
         <div className="row mt-1">
-
         	<div className="col-lg-8">
         		<div className="row">
 					<div className="col-sm-8 col-lg-4">

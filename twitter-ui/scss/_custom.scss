@@ -33,4 +33,47 @@
 	
 }
 
+$w : 200px;
+$h : 100px;
+$strokeWidth : 3px;
+$svg : '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 #{$w} #{$h}"><polyline fill="none" stroke-width="#{$strokeWidth}" stroke="#818a91" points="2.4,58.7 70.8,58.7 76.1,46.2 81.1,58.7 89.9,58.7 93.8,66.5 102.8,22.7 110.6,78.7 115.3,58.7 126.4,58.7 134.4,54.7 142.4,58.7 197.8,58.7 "/></svg>';
 
+.pulse{ 
+  height:$h;
+  width:$w;
+  overflow:hidden;
+  position:absolute;
+  bottom:-25px;
+  opacity:0.2;
+  margin:auto;
+  // heartbeat gfx
+  &:after{
+    content:'';
+    display:block;
+    background:url('data:image/svg+xml;utf8,#{$svg}') 0 0 no-repeat;
+  // background-size:$w $w;
+    width:100%; height:100%;
+    position:absolute;
+    animation:2s pulse infinite linear;
+  } 
+  // flat opaque line
+  &:before{ 
+    content:''; 
+   
+    position:absolute; z-index:-1; 
+    left:2px; right:2px; bottom:0; top:16px; // the SVG isn't exacly centered..
+    margin:auto; 
+    height:$strokeWidth; 
+  }
+}
+
+@keyframes pulse{
+  0%   { clip:rect(0, 0, $h, 0); }
+  10%  { clip:rect(0, $w/3, $h, 0); } 
+  38%  { clip:rect(0, #{$w/1.5}, $h, 0); }
+  48%  { clip:rect(0, $w, $h, 0); }
+  52%  { clip:rect(0, $w, $h, 0); }
+  62%  { clip:rect(0, $w, $h, $w/3); }
+  90%  { clip:rect(0, $w, $h, #{$w/1.5}); }
+  100% { clip:rect(0, $w, $h, $w); }
+}
