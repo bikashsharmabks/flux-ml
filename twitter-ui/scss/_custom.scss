@@ -33,6 +33,17 @@
 	
 }
 
+.smaller {
+	font-size: 40%;
+	font-weight: normal;
+}
+
+.activites-count {
+	font-size: 150%;
+	font-weight: bold;
+	color: $gray-dark
+}
+
 $w : 200px;
 $h : 100px;
 $strokeWidth : 3px;

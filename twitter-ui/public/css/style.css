@@ -13807,6 +13807,15 @@ base-chart.chart {
 .card-deck a.card.hashtags:hover {
   background-color: #f8f9fa; }
 
+.smaller {
+  font-size: 40%;
+  font-weight: normal; }
+
+.activites-count {
+  font-size: 150%;
+  font-weight: bold;
+  color: #2a2c36; }
+
 .pulse {
   height: 100px;
   width: 200px;

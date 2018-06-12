@@ -110,6 +110,7 @@ class HashTag extends Component {
 	  		 <div className="col-lg-10">
 	  		   <div className="h2 font-weight-bold">
               #{this.props.routeParams.hashTag}
+              <span className='smaller text-muted ml-1'>Pulse <span className="activites-count">25</span> activities/min</span>
               <span className='pulse'></span>
            </div>
 
