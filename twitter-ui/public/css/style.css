@@ -13821,19 +13821,19 @@ base-chart.chart {
   width: 200px;
   overflow: hidden;
   position: absolute;
-  bottom: -25px;
-  opacity: 0.2;
+  bottom: -18px;
   margin: auto; }
   .pulse:after {
     content: '';
     display: block;
-    background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200px 100px"><polyline fill="none" stroke-width="3px" stroke="#818a91" points="2.4,58.7 70.8,58.7 76.1,46.2 81.1,58.7 89.9,58.7 93.8,66.5 102.8,22.7 110.6,78.7 115.3,58.7 126.4,58.7 134.4,54.7 142.4,58.7 197.8,58.7 "/></svg>') 0 0 no-repeat;
+    background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200px 100px"><polyline fill="none" stroke-width="2px" stroke="#20a8d8" points="2.4,58.7 70.8,58.7 76.1,46.2 81.1,58.7 89.9,58.7 93.8,66.5 102.8,22.7 110.6,78.7 115.3,58.7 126.4,58.7 134.4,54.7 142.4,58.7 197.8,58.7 "/></svg>') 0 0 no-repeat;
     width: 100%;
     height: 100%;
     position: absolute;
     animation: 2s pulse infinite linear; }
   .pulse:before {
     content: '';
+    background: #f8f9fa;
     position: absolute;
     z-index: -1;
     left: 2px;
@@ -13841,7 +13841,7 @@ base-chart.chart {
     bottom: 0;
     top: 16px;
     margin: auto;
-    height: 3px; }
+    height: 2px; }
 
 @keyframes pulse {
   0% {

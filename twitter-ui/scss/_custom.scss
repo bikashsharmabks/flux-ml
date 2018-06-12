@@ -46,16 +46,16 @@
 
 $w : 200px;
 $h : 100px;
-$strokeWidth : 3px;
-$svg : '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 #{$w} #{$h}"><polyline fill="none" stroke-width="#{$strokeWidth}" stroke="#818a91" points="2.4,58.7 70.8,58.7 76.1,46.2 81.1,58.7 89.9,58.7 93.8,66.5 102.8,22.7 110.6,78.7 115.3,58.7 126.4,58.7 134.4,54.7 142.4,58.7 197.8,58.7 "/></svg>';
+$strokeWidth : 2px;
+$svg : '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 #{$w} #{$h}"><polyline fill="none" stroke-width="#{$strokeWidth}" stroke="#{$brand-primary}" points="2.4,58.7 70.8,58.7 76.1,46.2 81.1,58.7 89.9,58.7 93.8,66.5 102.8,22.7 110.6,78.7 115.3,58.7 126.4,58.7 134.4,54.7 142.4,58.7 197.8,58.7 "/></svg>';
 
 .pulse{ 
   height:$h;
   width:$w;
   overflow:hidden;
   position:absolute;
-  bottom:-25px;
-  opacity:0.2;
+  bottom:-18px;
+  
   margin:auto;
   // heartbeat gfx
   &:after{
@@ -70,7 +70,7 @@ $svg : '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 #{$w} #{$h}"><polyl
   // flat opaque line
   &:before{ 
     content:''; 
-   
+   	background: $gray-lightest; 
     position:absolute; z-index:-1; 
     left:2px; right:2px; bottom:0; top:16px; // the SVG isn't exacly centered..
     margin:auto; 
