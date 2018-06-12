@@ -102,7 +102,7 @@ class HashTag extends Component {
   	const topHashTags = this.state.topHashTags
   	const sentiments = this.state.sentiments
   	const activities = this.state.activities
-    const activityRate = parseInt(this.state.activities.activityRate) > 1 ? parseInt(this.state.activities.activityRate) : null
+    const activityRate = parseInt(this.state.activities.activityRate) >= 1 ? parseInt(this.state.activities.activityRate) : null
 
     return (
       <div className="animated fadeIn">

@@ -140,7 +140,6 @@ function formatActivityData(data) {
 		});
 	}
 
-
 	if (positive.length > 0) {
 		_.each(label, function(l) {
 			var _positive = _.find(positive, { 'time': l });
@@ -153,7 +152,6 @@ function formatActivityData(data) {
 		});
 	}
 
-
 	if (negative.length > 0) {
 		_.each(label, function(l) {
 			var _negative = _.find(negative, { 'time': l });
@@ -165,7 +163,6 @@ function formatActivityData(data) {
 			}
 		});
 	}
-
 
 	if (neutral.length > 0) {
 		_.each(label, function(l) {
