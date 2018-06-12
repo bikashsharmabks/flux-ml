@@ -102,7 +102,8 @@ class HashTag extends Component {
   	const topHashTags = this.state.topHashTags
   	const sentiments = this.state.sentiments
   	const activities = this.state.activities
-  	
+    const activityRate = parseInt(this.state.activities.activityRate) > 1 ? parseInt(this.state.activities.activityRate) : null
+
     return (
       <div className="animated fadeIn">
 
@@ -112,10 +113,13 @@ class HashTag extends Component {
               #{this.props.routeParams.hashTag}
            </div>
          </div>
-         <div className="col-lg-4">
-           <span className='text-muted text-uppercase font-weight-bold'><span className="activites-count">25</span> activities/min</span>
-           <span className='pulse float-right ml-2'></span>
-         </div>
+
+         {activityRate &&
+          <div className="col-lg-4">
+            <span className='text-muted text-uppercase font-weight-bold'><span className="activites-count">{activityRate}</span> activities/min</span>
+            <span className='pulse float-right ml-2'></span>
+          </div>
+         }
       	</div>
 
         <div className="row mt-1">

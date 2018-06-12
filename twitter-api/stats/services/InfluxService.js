@@ -178,6 +178,8 @@ function formatActivityData(data) {
 			}
 		});
 	}
+
+	var activityRate = (_.sum(tweetData) + _.sum(retweetData) + _.sum(quoteData))/90;
 	return {
 		labels: label,
 		tweetData: tweetData,
@@ -185,7 +187,8 @@ function formatActivityData(data) {
 		quoteData: quoteData,
 		neutralSentiment: neutralSentiment,
 		positiveSentiment: positiveSentiment,
-		negativeSentiment: negativeSentiment
+		negativeSentiment: negativeSentiment,
+		activityRate: activityRate
 	}
 }
 
@@ -262,7 +265,6 @@ function writeUserMentionMeasurement(tweetData) {
 				}
 			}
 		});
-		//console.log(points);
 
 		influx.writePoints(points, {
 			precision: 'u',
@@ -303,7 +305,6 @@ function writeHashtagMeasurement(tweetData) {
 				}
 			}
 		});
-		console.log(points)
 
 		influx.writePoints(points, {
 			precision: 'u',
@@ -486,11 +487,9 @@ function getActivityTimeSeriesData(hashtag) {
 
 		var activityTSQuery = `select sum(activityCount) as count from 
 		activity where hashtag = '${hashtag}' AND time > now() - 90m GROUP by activityType, time(1m)  `
-
+		
 		var emotionTSQuery = `select sum(emotionCount) as count from 
 		activity where hashtag = '${hashtag}' AND time > now() - 90m GROUP by emotion, time(1m)`
-
-		console.log(activityTSQuery)
 
 		influx.query(activityTSQuery).then(function(activityData) {
 			_.each(activityData, function(res) {
