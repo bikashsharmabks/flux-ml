@@ -17,6 +17,8 @@ from kafka.client import KafkaClient
 import json
 import os
 
+import requests
+
 import re
 from textblob import TextBlob
 
@@ -213,9 +215,17 @@ def format_tweet(r):
         temp["sentiment"] = 'neutral'
     else:
         temp["sentiment"] ='negative'        
-                                    
-        
-            
+    
+    payload = {
+        "name": temp.get("user_name")
+    }                                
+    r = requests.post("http://10.0.1.186:10001/api/predictions/gender", json=payload)    
+    
+    if(r.status_code == 200):
+        temp["gender"] = r.json().get("gender")
+    else:
+        temp["gender"] = "unknown"    
+
     del temp["user_mentions"] 
     del temp["hashtags"] 
     del temp["urls"] 
