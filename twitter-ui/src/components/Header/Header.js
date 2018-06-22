@@ -24,6 +24,9 @@ class Header extends Component {
         <div className="nav navbar nav-item hidden-md-down">
           <div className="h4 mt-auto">Social Media Analytics</div>
         </div>
+        <div className="nav navbar-nav hidden-md-down">
+        
+        </div>
       </header>
     )
   }
