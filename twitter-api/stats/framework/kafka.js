@@ -1,5 +1,6 @@
 var kafka = require('kafka-node'),
   Consumer = kafka.Consumer,
+  loki = require('./loki'),
   Service = require('../services/Service');
 
 
@@ -52,6 +53,10 @@ function startActivityConsumer() {
   consumer.on('message', function(message) {
     var tweetData = JSON.parse(message.value);
     if (tweetData) {
+      
+      // store user count in loki db
+      loki.updateGenderCount(tweetData.hashtag,tweetData.gender)
+
       Service.InfluxService.writeActivityMeasurement(tweetData).then(function(res) {
         console.log("#" + tweetData.hashtag + " Activity data added.", res);
         return Service.InfluxService.writeUserMentionMeasurement(tweetData);

@@ -10,7 +10,9 @@ var lokiDB = module.exports = {
 	init: init,
 	insertHashtag: insertHashtag,
 	updateHashtag: updateHashtag,
-	findAllHashtag: findAllHashtag
+	findAllHashtag: findAllHashtag,
+	updateGenderCount: updateGenderCount,
+	getGenderCount:getGenderCount
 }
 
 
@@ -31,9 +33,16 @@ function init() {
 
 	function databaseInitialize() {
 		var hashtag = db.getCollection("hashtag");
+		var genderCount = db.getCollection("genderCount");
+
 		if (hashtag === null) {
 			db.addCollection("hashtag");
 		}
+
+		if (genderCount === null) {
+			db.addCollection("genderCount");
+		}
+
 		console.log('database initialized.')
 	}
 
@@ -94,7 +103,45 @@ function updateDatabase(db) {
 	});
 }
 
+
+function updateGenderCount(hashtag, gender) {
+	var genderCountCollection = lokiDB.Client.getCollection("genderCount");
+	var genderCountData = genderCountCollection.find({
+		'hashtag': hashtag
+	})
+
+	if (genderCountData.length == 0) {
+		genderCountCollection.insert({
+			"hashtag": hashtag,
+			"maleCount": 0,
+			"femaleCount": 0,
+			"unknownCount": 0
+		})
+		updateDatabase(lokiDB.Client);
+	}
+
+	genderCountCollection.findAndUpdate({
+			'hashtag': hashtag
+		},
+		function(r) {
+			if(gender == 'male')
+				r.maleCount = r.maleCount + 1;
+			else if (gender == 'female') {
+				r.femaleCount = r.femaleCount + 1;
+			}else{
+				r.unknownCount = r.unknownCount +1;
+			}
+			return r;
+		})
+	updateDatabase(lokiDB.Client)
+}
+
+function getGenderCount(hashtag) {
+	var genderCountCollection = lokiDB.Client.getCollection("genderCount");
+	return genderCountCollection.findOne({"hashtag":hashtag});
+}
+
 // setTimeout(function() {
-// 	console.log(insertHashtag("ad9"))
-// 	console.log(findAllHashtag())
+// 	console.log(updateGenderCount("ad9","male"))
+// 	console.log(getGenderCount("ad9"))
 // }, 5000)

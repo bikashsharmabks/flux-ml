@@ -19,7 +19,8 @@ var RequestHandler = module.exports = {
 	getTopUserMention: getTopUserMention,
 	getTopRelatedHashTag: getTopRelatedHashTag,
 	getEmotionCount: getEmotionCount,
-	getActivityTimeSeriesData: getActivityTimeSeriesData
+	getActivityTimeSeriesData: getActivityTimeSeriesData,
+	getGenderCount: getGenderCount
 }
 
 
@@ -133,5 +134,11 @@ function getActivityTimeSeriesData(req, res, next) {
 
 function getAllHashtags(req, res, next) {
 	res.send(200, loki.findAllHashtag());
+	next();
+}
+
+function getGenderCount(req, res, next) {
+	var hashtag = req.params.hashtag;
+	res.send(200, loki.getGenderCount(hashtag));
 	next();
 }

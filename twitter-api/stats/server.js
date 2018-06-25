@@ -36,6 +36,8 @@ server.get('/api/hashtags/:hashtag/top-user-mentions', RequestHandler.getTopUser
 server.get('/api/hashtags/:hashtag/top-related-hashtags', RequestHandler.getTopRelatedHashTag);
 server.get('/api/hashtags/:hashtag/activity-timeseries-data', RequestHandler.getActivityTimeSeriesData);
 
+server.get('/api/hashtags/:hashtag/gender-count', RequestHandler.getGenderCount);
+
 
 server.listen(5001, function() {
 	console.log('%s listening at %s', server.name, server.url);

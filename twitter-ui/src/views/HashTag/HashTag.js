@@ -5,6 +5,7 @@ import StatCard from '../../components/StatCard/StatCard.js';
 import TopInfluencer from '../../components/TopInfluencer/TopInfluencer.js'
 import TopHashTag from '../../components/TopHashTag/TopHashTag.js'
 import Sentiment from '../../components/Sentiment/Sentiment.js'
+import Gender from '../../components/Gender/Gender.js'
 import TrendChart from '../../components/TrendChart/TrendChart.js'
 
 
@@ -21,7 +22,12 @@ class HashTag extends Component {
       sentiments: [],
       activities: [],
       //hashtag: "bypolls"
-      hashtag: props.routeParams.hashTag
+      hashtag: props.routeParams.hashTag,
+      genderCount:{
+        malePercentage:0,
+        femalePercentage:0,
+        unknownPercentage:0
+      }
     };
   }
 
@@ -36,6 +42,7 @@ class HashTag extends Component {
     this.interval1 = setInterval(() => {
       this.getCount()
       this.top()
+      this.getGenderCount()
     }, 5000);
     this.interval2 = setInterval(() => {
       this.getActivities()
@@ -64,6 +71,31 @@ class HashTag extends Component {
       });
   }
 
+  async getGenderCount(){
+      superagent.get('/api/hashtags/' + this.state.hashtag + '/gender-count')
+      .set('Accept', 'application/json')
+      .end((error, response) => {
+        if (error) {
+          console.log(error)
+        } else {
+          let res = response.body;
+          let maleCount = res.maleCount ? res.maleCount : 0
+          let femaleCount = res.femaleCount ? res.femaleCount : 0
+          let unknownCount =  0
+          let totalCount = maleCount + femaleCount + unknownCount
+
+          let GCdata = {
+                malePercentage : Math.round((maleCount/totalCount)*100),
+                femalePercentage : Math.round((femaleCount/totalCount)*100),
+                unknownPercentage : Math.round((unknownCount/totalCount)*100)
+          }
+          this.setState({
+            genderCount : GCdata
+          });
+        }
+      });
+  }
+
   async getActivities() {
     superagent.get('/api/hashtags/' + this.state.hashtag + '/activity-timeseries-data')
       .set('Accept', 'application/json')
@@ -83,6 +115,7 @@ class HashTag extends Component {
       var responseMention = await superagent.get('/api/hashtags/' + this.state.hashtag + '/top-user-mentions');
       var responseHashtag = await superagent.get('/api/hashtags/' + this.state.hashtag + '/top-related-hashtags');
       var responseEmotion = await superagent.get('/api/hashtags/' + this.state.hashtag + '/emotion-count');
+
       this.setState({
         topInfluencers: responseMention.body,
         topHashTags: responseHashtag.body,
@@ -102,6 +135,7 @@ class HashTag extends Component {
   	const topHashTags = this.state.topHashTags
   	const sentiments = this.state.sentiments
   	const activities = this.state.activities
+    const genderCount = this.state.genderCount
     const activityRate = parseInt(this.state.activities.activityRate) >= 1 ? parseInt(this.state.activities.activityRate) : null
 
     return (
@@ -164,6 +198,13 @@ class HashTag extends Component {
             <Sentiment source={sentiments}></Sentiment>
           </div>
         </div>
+        
+        <div className="row">
+          <div className="col-sm-6 col-lg-12">
+            <Gender source={genderCount}></Gender>
+          </div>
+        </div>
+
 				<div className="row">
 					<div className="col-sm-6 col-lg-12">
 						<TopInfluencer source={topInfluencers}></TopInfluencer>
