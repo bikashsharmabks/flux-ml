@@ -83,11 +83,10 @@ class HashTag extends Component {
           let femaleCount = res.femaleCount ? res.femaleCount : 0
           let unknownCount =  0
           let totalCount = maleCount + femaleCount + unknownCount
-
           let GCdata = {
-                malePercentage : Math.round((maleCount/totalCount)*100),
-                femalePercentage : Math.round((femaleCount/totalCount)*100),
-                unknownPercentage : Math.round((unknownCount/totalCount)*100)
+                malePercentage : totalCount > 0 ? Math.round((maleCount/totalCount)*100) : 0,
+                femalePercentage : totalCount > 0 ? Math.round((femaleCount/totalCount)*100) : 0,
+                unknownPercentage : totalCount > 0 ? Math.round((unknownCount/totalCount)*100) : 0
           }
           this.setState({
             genderCount : GCdata

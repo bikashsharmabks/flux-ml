@@ -220,7 +220,7 @@ def format_tweet(r):
         payload = {
         "name": temp.get("user_name")
         }                                
-        r = requests.post("http://198.211.109.154:10001/api/predictions/gender", json=payload) 
+        r = requests.post("http://172.17.0.1:10001/api/predictions/gender", json=payload) 
         if(r.status_code == 200):
             temp["gender"] = r.json().get("gender")
         else:
