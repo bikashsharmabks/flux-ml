@@ -216,15 +216,21 @@ def format_tweet(r):
     else:
         temp["sentiment"] ='negative'        
     
-    payload = {
+    try:
+        payload = {
         "name": temp.get("user_name")
-    }                                
-    r = requests.post("http://10.0.1.186:10001/api/predictions/gender", json=payload)    
+        }                                
+        r = requests.post("http://10.0.1.186:10001/api/predictions/gender", json=payload) 
+        if(r.status_code == 200):
+            temp["gender"] = r.json().get("gender")
+        else:
+            temp["gender"] = "unknown" 
+    except:
+        temp["gender"] = "unknown" 
+        print("model serve server down.")
+       
     
-    if(r.status_code == 200):
-        temp["gender"] = r.json().get("gender")
-    else:
-        temp["gender"] = "unknown"    
+       
 
     del temp["user_mentions"] 
     del temp["hashtags"] 
